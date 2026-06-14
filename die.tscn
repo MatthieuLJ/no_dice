@@ -1,0 +1,68 @@
+[gd_scene load_steps=7 format=3 uid="uid://7y1gcfc1k42k"]
+
+[ext_resource type="Script" uid="uid://m7ddishsxomf" path="res://die.gd" id="1_fl3nv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fl3nv"]
+albedo_color = Color(1, 0.207843, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fl3nv"]
+material = SubResource("StandardMaterial3D_fl3nv")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_fl3nv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gxo0y"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+linear_damp = 0.1
+script = ExtResource("1_fl3nv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+shape = SubResource("BoxShape3D_lbo6s")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+mesh = SubResource("BoxMesh_fl3nv")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+mesh = SubResource("PlaneMesh_fl3nv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5, 0)
+shape = SubResource("BoxShape3D_gxo0y")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 1.5, 0)
+visible = false
+keep_aspect = 0
+current = true
+fov = 90.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 6, 1)
+visible = false
+light_color = Color(0.942667, 0.859814, 0.611737, 1)
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="."]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0, 0)
+operation = 2
+use_collision = true
+
+[node name="CSGBox3D" type="CSGBox3D" parent="CSGCombiner3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+custom_aabb = AABB(0, 0, 0, 1, 1, 1)
+size = Vector3(2, 2, 2)
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="CSGCombiner3D"]
+operation = 2
+polygon = PackedVector2Array(0, 0, 0, 2, 1, 0)
+mode = 1
+spin_degrees = 360.0
+spin_sides = 4
