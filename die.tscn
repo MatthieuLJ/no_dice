@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://7y1gcfc1k42k"]
 
 [ext_resource type="Script" uid="uid://m7ddishsxomf" path="res://die.gd" id="1_fl3nv"]
+[ext_resource type="Script" uid="uid://d2sx1kedg257t" path="res://pyramid_scale.gd" id="2_gxo0y"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
 
@@ -54,6 +55,7 @@ light_color = Color(0.942667, 0.859814, 0.611737, 1)
 transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0, 0)
 operation = 2
 use_collision = true
+script = ExtResource("2_gxo0y")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="CSGCombiner3D" unique_id=1178474898]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

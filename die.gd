@@ -39,3 +39,13 @@ func _input(event):
 		global_position = Vector3(0, 0.55, 0)
 		linear_velocity = Vector3.ZERO
 		angular_velocity = Vector3.ZERO
+		
+func get_current_aspect_ratio():
+	# get_viewport().get_visible_rect() gives you the pixel dimensions
+	var view_size = get_viewport().get_visible_rect().size
+	var aspect_ratio = view_size.x / view_size.y
+	return aspect_ratio
+	
+# Example usage
+func _ready():
+	print("Current Aspect Ratio: ", get_current_aspect_ratio())
