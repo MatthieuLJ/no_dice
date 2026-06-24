@@ -18,9 +18,9 @@ func roll_die():
 	# Apply a random impulse to make the die tumble
 	# We use a random vector to ensure it doesn't roll the same way twice
 	var random_impulse = Vector3(
-		randf_range(-1, 1), 
-		randf_range(.5, 1.5), 
-		randf_range(-1, 1)
+		randf_range(-0.1, 0.1),
+		randf_range(.2, 0.7),
+		randf_range(-0.4, 0.4)
 	)
 	
 	# Apply the force to the center of the die
@@ -28,9 +28,9 @@ func roll_die():
 	
 	# Optional: Add random torque for extra spin
 	apply_torque_impulse(Vector3(
-		randf_range(-5, 5), 
-		randf_range(-5, 5), 
-		randf_range(-5, 5)
+		randf_range(-0.5, 0.5),
+		randf_range(-0.5, 0.5),
+		randf_range(-0.5, 0.5)
 	))
 
 func _input(event):
