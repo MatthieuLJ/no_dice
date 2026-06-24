@@ -41,26 +41,27 @@ func _physics_process(delta: float) -> void:
 		# Limit gravity components to standard earth gravity (9.8 m/s^2)
 		var g_x = clampf(gravity.x, -9.8, 9.8)
 		var g_y = clampf(gravity.y, -9.8, 9.8)
-		
+
+
 		# Map device coordinate tilt to 3D space Euler angles
 		var target_pitch = -g_y / 9.8 * (PI / 4.0)
 		var target_roll = -g_x / 9.8 * (PI / 4.0)
-		
+
 		target_quat = Quaternion.from_euler(Vector3(target_pitch, 0.0, target_roll))
 	else:
 		# --- DESKTOP KEYBOARD FALLBACK ---
 		var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 		var target_euler = Vector3(
-			input_dir.y * PI / 4.0,
+			input_dir.y * PI / 3.0,
 			0.0,
-			-input_dir.x * PI / 4.0
+			-input_dir.x * PI / 3.0
 		)
 		target_quat = Quaternion.from_euler(target_euler)
 
 	# 2. Incorporate Gyroscope for sharp "jerks" / shakes
 	var gyro = Input.get_gyroscope()
 	if not gyro.is_zero_approx():
-		var gyro_impulse = Quaternion(gyro * delta * shake_sensitivity)
+		var gyro_impulse = Quaternion.from_euler(gyro * delta * shake_sensitivity)
 		target_quat = target_quat * gyro_impulse
 
 	# 3. Smoothly rotate without scale distortion
