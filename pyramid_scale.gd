@@ -39,15 +39,25 @@ func _physics_process(delta: float) -> void:
 	var target_quat: Quaternion
 
 	if not gravity.is_zero_approx():
-		var physical_up = -gravity.normalized()
-		target_quat = Quaternion(Vector3.UP, physical_up)
+		# Limit gravity components to standard earth gravity (9.8 m/s^2)
+		var g_x = clampf(gravity.x, -9.8, 9.8)
+		var g_y = clampf(gravity.y, -9.8, 9.8)
+
+		# Map device coordinate tilt to 3D space Euler angles:
+		# - gravity.y (longitudinal tilt) controls Pitch (rotation around X-axis)
+		# - gravity.x (lateral tilt) controls Roll (rotation around Z-axis)
+		# A max tilt of 9.8 m/s^2 corresponds to a comfortable 45-degree (PI/4) tilt.
+		var target_pitch = -g_y / 9.8 * (PI / 4.0)
+		var target_roll = -g_x / 9.8 * (PI / 4.0)
+
+		target_quat = Quaternion.from_euler(Vector3(target_pitch, 0.0, target_roll))
 	else:
 		# --- DESKTOP KEYBOARD FALLBACK ---
 		var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 		var target_euler = Vector3(
-			input_dir.y * PI / 2.0,
+			input_dir.y * PI / 4.0,
 			0.0,
-			-input_dir.x * PI / 2.0
+			-input_dir.x * PI / 4.0
 		)
 		target_quat = Quaternion.from_euler(target_euler)
 
@@ -58,8 +68,9 @@ func _physics_process(delta: float) -> void:
 		target_quat = target_quat * gyro_impulse
 
 	# 3. Smoothly rotate and apply the preserved scale
-	# We use get_rotation_quaternion() to bypass scale distorting the rotation query
-	var current_quat = transform.basis.get_rotation_quaternion()
+	# CRITICAL FIX: We use orthonormalized() here to strip out scale before querying rotation.
+	# This prevents NaN errors from breaking the transform.
+	var current_quat = transform.basis.orthonormalized().get_rotation_quaternion()
 	var next_quat = current_quat.slerp(target_quat, tilt_speed * delta)
 
 	# Build a clean rotation basis and apply our target scale to it
