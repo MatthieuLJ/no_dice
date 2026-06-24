@@ -1,13 +1,12 @@
-extends Node3D
 
-# Store the target scale so it isn't lost during rotation calculations
-var target_scale: Vector3 = Vector3.ONE
+extends AnimatableBody3D
 
-@export_group("Tilt Settings")
-@export var tilt_speed: float = 8.0         # How fast the box interpolates to the target angle
-@export var shake_sensitivity: float = 1.5  # How strongly sudden phone jerks tilt the tray
+# Reference the wall child nodes
+@onready var wall_north: CollisionShape3D = $Wall_North
+@onready var wall_south: CollisionShape3D = $Wall_South
 
-func _ready():
+
+func _ready() -> void:
 	# Connect to viewport resize to update scale automatically
 	get_viewport().size_changed.connect(_update_scale)
 	# Initial call to set scale at startup
@@ -15,18 +14,18 @@ func _ready():
 
 func _update_scale():
 	var view_size = get_viewport().get_visible_rect().size
-	# Prevent division by zero if view_size is not fully initialized
 	if view_size.x == 0:
 		return
 
 	var aspect_ratio = view_size.y / view_size.x
-	
-	# Keep X and Y at default, apply aspect ratio scale to Z
-	target_scale = Vector3(1.0, 1.0, aspect_ratio)
 
-	# Apply scale immediately
-	transform.basis = transform.basis.orthonormalized().scaled(target_scale)
-	print("Current Aspect Ratio: ", aspect_ratio, " | Target Scale: ", target_scale)
+	# Moving the walls to match the aspect ratio of the display
+	wall_north.position = Vector3(0.0, 0.5, -aspect_ratio)
+	wall_south.position = Vector3(0.0, 0.5, aspect_ratio)
+
+@export_group("Tilt Settings")
+@export var tilt_speed: float = 8.0         # How fast the box interpolates to the target angle
+@export var shake_sensitivity: float = 1.5  # How strongly sudden phone jerks tilt the tray
 
 func _physics_process(delta: float) -> void:
 	# 1. Get the device's gravity vector (combines gyro + accelerometer)
@@ -42,14 +41,11 @@ func _physics_process(delta: float) -> void:
 		# Limit gravity components to standard earth gravity (9.8 m/s^2)
 		var g_x = clampf(gravity.x, -9.8, 9.8)
 		var g_y = clampf(gravity.y, -9.8, 9.8)
-
-		# Map device coordinate tilt to 3D space Euler angles:
-		# - gravity.y (longitudinal tilt) controls Pitch (rotation around X-axis)
-		# - gravity.x (lateral tilt) controls Roll (rotation around Z-axis)
-		# A max tilt of 9.8 m/s^2 corresponds to a comfortable 45-degree (PI/4) tilt.
+		
+		# Map device coordinate tilt to 3D space Euler angles
 		var target_pitch = -g_y / 9.8 * (PI / 4.0)
 		var target_roll = -g_x / 9.8 * (PI / 4.0)
-
+		
 		target_quat = Quaternion.from_euler(Vector3(target_pitch, 0.0, target_roll))
 	else:
 		# --- DESKTOP KEYBOARD FALLBACK ---
@@ -67,11 +63,9 @@ func _physics_process(delta: float) -> void:
 		var gyro_impulse = Quaternion(gyro * delta * shake_sensitivity)
 		target_quat = target_quat * gyro_impulse
 
-	# 3. Smoothly rotate and apply the preserved scale
-	# CRITICAL FIX: We use orthonormalized() here to strip out scale before querying rotation.
-	# This prevents NaN errors from breaking the transform.
+	# 3. Smoothly rotate without scale distortion
 	var current_quat = transform.basis.orthonormalized().get_rotation_quaternion()
 	var next_quat = current_quat.slerp(target_quat, tilt_speed * delta)
 
-	# Build a clean rotation basis and apply our target scale to it
-	transform.basis = Basis(next_quat).scaled(target_scale)
+	# Apply rotation cleanly with standard 1.0 scale
+	transform.basis = Basis(next_quat)

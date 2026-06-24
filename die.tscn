@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://m7ddishsxomf" path="res://die.gd" id="1_fl3nv"]
 [ext_resource type="Script" uid="uid://d2sx1kedg257t" path="res://pyramid_scale.gd" id="2_gxo0y"]
+[ext_resource type="Script" uid="uid://cgu1ldy470jwa" path="res://camera.gd" id="2_q3244"]
+[ext_resource type="Script" uid="uid://c8qbq4dlfg1pa" path="res://debug_label.gd" id="3_muu1c"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -22,14 +24,6 @@ albedo_color = Color(0.12207278, 0.33307928, 0.11401791, 1)
 [sub_resource type="PlaneMesh" id="PlaneMesh_fl3nv"]
 material = SubResource("StandardMaterial3D_qmayl")
 
-[sub_resource type="CurveTexture" id="CurveTexture_gxo0y"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_muu1c"]
-albedo_color = Color(0.10653389, 0.40430748, 0, 1)
-roughness_texture = SubResource("CurveTexture_gxo0y")
-roughness_texture_channel = 1
-normal_enabled = true
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_gxo0y"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrp3r"]
@@ -48,6 +42,7 @@ size = Vector3(0.1, 1, 2)
 
 [node name="Die" type="RigidBody3D" parent="." unique_id=343189897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+can_sleep = false
 linear_damp = 0.8
 angular_damp = 2.0
 script = ExtResource("1_fl3nv")
@@ -65,22 +60,24 @@ light_color = Color(0.8145645, 0.89032847, 0.7817355, 1)
 light_energy = 8.108
 light_indirect_energy = 5.336
 light_angular_distance = 30.0
+shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=50445828]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)
 keep_aspect = 0
 current = true
 fov = 45.0
+script = ExtResource("2_q3244")
 
 [node name="Enclosure" type="Node3D" parent="." unique_id=259526915]
 
 [node name="Ground" type="AnimatableBody3D" parent="Enclosure" unique_id=1843248541]
 physics_material_override = SubResource("PhysicsMaterial_gxo0y")
+sync_to_physics = false
 script = ExtResource("2_gxo0y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Enclosure/Ground" unique_id=504361292]
 mesh = SubResource("PlaneMesh_fl3nv")
-surface_material_override/0 = SubResource("StandardMaterial3D_muu1c")
 
 [node name="Bottom" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=1002200635]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5, 0)
@@ -101,3 +98,10 @@ shape = SubResource("BoxShape3D_pg65m")
 [node name="Wall_West" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=425651818]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5, 0)
 shape = SubResource("BoxShape3D_xbu7s")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1411825698]
+
+[node name="Label" type="Label" parent="CanvasLayer" unique_id=2022568943]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("3_muu1c")
