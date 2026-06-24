@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://7y1gcfc1k42k"]
 
 [ext_resource type="Script" uid="uid://m7ddishsxomf" path="res://die.gd" id="1_fl3nv"]
+[ext_resource type="Script" uid="uid://dqtubdrvfxqa3" path="res://world_physics.gd" id="1_qmayl"]
 [ext_resource type="Script" uid="uid://d2sx1kedg257t" path="res://pyramid_scale.gd" id="2_gxo0y"]
 [ext_resource type="Script" uid="uid://cgu1ldy470jwa" path="res://camera.gd" id="2_q3244"]
 [ext_resource type="Script" uid="uid://c8qbq4dlfg1pa" path="res://debug_label.gd" id="3_muu1c"]
@@ -42,6 +43,7 @@ size = Vector3(0.1, 1, 2)
 size = Vector3(2, 0.1, 2)
 
 [node name="Node3D" type="Node3D" unique_id=199600776]
+script = ExtResource("1_qmayl")
 
 [node name="Die" type="RigidBody3D" parent="." unique_id=343189897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
