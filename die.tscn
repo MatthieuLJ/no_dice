@@ -59,13 +59,14 @@ shape = SubResource("BoxShape3D_lbo6s")
 mesh = SubResource("BoxMesh_fl3nv")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=68554707]
-transform = Transform3D(1, 0, 0, 0, 0.70710695, 0.70710695, 0, -0.70710695, 0.70710695, 0, 1.5, 1)
-layers = 0
-light_color = Color(0.8145645, 0.89032847, 0.7817355, 1)
-light_energy = 16.0
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1.0000002, 0, -1.0000002, -4.37114e-08, 0, 1.5, 1)
+light_color = Color(0.8555428, 0.90192854, 0.49905372, 1)
+light_energy = 8.0
 light_indirect_energy = 5.336
 light_angular_distance = 30.0
 shadow_enabled = true
+shadow_bias = 0.04
+shadow_normal_bias = 1.2
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=50445828]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)
