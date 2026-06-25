@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://d2sx1kedg257t" path="res://pyramid_scale.gd" id="2_gxo0y"]
 [ext_resource type="Script" uid="uid://cgu1ldy470jwa" path="res://camera.gd" id="2_q3244"]
 [ext_resource type="Script" uid="uid://c8qbq4dlfg1pa" path="res://debug_label.gd" id="3_muu1c"]
+[ext_resource type="Script" uid="uid://6lbk11xr68tm" path="res://gravity_debugger.gd" id="4_kwyh5"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -42,6 +43,9 @@ size = Vector3(0.1, 1, 2)
 [sub_resource type="BoxShape3D" id="BoxShape3D_2nkai"]
 size = Vector3(2, 0.1, 2)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_6vino"]
+size = Vector3(4, 4, 4)
+
 [node name="Node3D" type="Node3D" unique_id=199600776]
 script = ExtResource("1_qmayl")
 
@@ -49,7 +53,7 @@ script = ExtResource("1_qmayl")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 can_sleep = false
 linear_damp = 0.8
-angular_damp = 2.0
+angular_damp = 0.1
 script = ExtResource("1_fl3nv")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Die" unique_id=1056087167]
@@ -76,6 +80,11 @@ fov = 45.0
 script = ExtResource("2_q3244")
 
 [node name="Enclosure" type="Node3D" parent="." unique_id=259526915]
+
+[node name="GravityDebugger" type="MeshInstance3D" parent="Enclosure" unique_id=258166269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+skeleton = NodePath("../..")
+script = ExtResource("4_kwyh5")
 
 [node name="Ground" type="AnimatableBody3D" parent="Enclosure" unique_id=1843248541]
 physics_material_override = SubResource("PhysicsMaterial_gxo0y")
@@ -108,6 +117,12 @@ shape = SubResource("BoxShape3D_xbu7s")
 [node name="Roof" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=1644655478]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("BoxShape3D_2nkai")
+
+[node name="GravityArea" type="Area3D" parent="Enclosure" unique_id=2130850354]
+gravity_space_override = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enclosure/GravityArea" unique_id=1494227142]
+shape = SubResource("BoxShape3D_6vino")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1411825698]
 
