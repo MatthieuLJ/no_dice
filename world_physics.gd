@@ -77,7 +77,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 
-		# --- DESKTOP SHAKE JERKS (W, A, S, D) ---
+		# --- DESKTOP SHAKE JERKS (W, A, S, D or Space) ---
+		if event.physical_keycode == KEY_SPACE:
+			_apply_strong_random_impulse()
+			get_viewport().set_input_as_handled()
+			return
+
 		var jerk_dir = Vector3.ZERO
 
 		if event.physical_keycode == KEY_W: jerk_dir = Vector3(0, 0, -1)
@@ -88,6 +93,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		if jerk_dir != Vector3.ZERO:
 			_apply_randomized_jerk(jerk_dir)
 			get_viewport().set_input_as_handled()
+
+func _apply_strong_random_impulse() -> void:
+	var horiz_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
+	if horiz_dir.is_zero_approx():
+		horiz_dir = Vector3.FORWARD
+
+	var impulse = horiz_dir * randf_range(1.5, 3.0) * (shake_multiplier * 0.25)
+	impulse.y += randf_range(1.0, 2.5) * (shake_multiplier * 0.25)
+
+	die.apply_central_impulse(impulse)
+
+	var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * randf_range(0.2, 0.5)
+	die.apply_torque_impulse(random_spin)
 
 func _apply_randomized_jerk(base_direction: Vector3) -> void:
 	var random_jerk = base_direction * randf_range(0.8, 1.2) * (shake_multiplier * 0.1)

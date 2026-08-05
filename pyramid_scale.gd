@@ -33,4 +33,3 @@ func _update_scale() -> void:
 	# Scale floor mesh and roof to cover the entire area
 	floor_mesh.scale.z = aspect_ratio
 	roof.scale.z = aspect_ratio
-
