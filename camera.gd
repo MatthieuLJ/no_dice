@@ -7,8 +7,10 @@ extends Camera3D
 # tan(π/8) = 1/h = sqrt(2) - 1
 # Therefore h = 1/(sqrt(2) - 1) = sqrt(2) + 1
 
-@export var starting_height: float = sqrt(2) + 1.2
+@export var starting_height: float = sqrt(2) + 1.0
 
 func _ready() -> void:
-	# Change only the Y position (height)
-	position.y = starting_height
+	keep_aspect = Camera3D.KEEP_WIDTH
+	fov = 45.0
+	position = Vector3(0.0, starting_height, 0.0)
+	rotation_degrees = Vector3(-90.0, 0.0, 0.0)
