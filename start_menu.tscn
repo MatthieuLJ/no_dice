@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c53k10u2x82y"]
+[gd_scene load_steps=6 format=3 uid="uid://c53k10u2x82y"]
 
 [ext_resource type="Script" uid="uid://dm0v4n2k12xl" path="res://start_menu.gd" id="1_start"]
 [ext_resource type="Shader" uid="uid://d1082u418y" path="res://shaders/screen_blur.gdshader" id="2_blur"]
@@ -9,24 +9,16 @@ shader_parameter/blur_amount = 3.5
 shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 44
+font_size = 48
 font_color = Color(0.2, 1.0, 0.4, 1)
 shadow_size = 8
 shadow_color = Color(0.0, 0.4, 0.1, 0.8)
-
-[sub_resource type="LabelSettings" id="LabelSettings_subtitle"]
-font_size = 18
-font_color = Color(0.15, 0.85, 0.35, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_blink"]
 font_size = 22
 font_color = Color(1.0, 0.8, 0.2, 1)
 shadow_size = 4
 shadow_color = Color(0.5, 0.3, 0.0, 0.8)
-
-[sub_resource type="LabelSettings" id="LabelSettings_credits"]
-font_size = 14
-font_color = Color(0.1, 0.65, 0.25, 0.7)
 
 [node name="StartMenu" type="CanvasLayer"]
 layer = 100
@@ -61,43 +53,22 @@ offset_right = 250.0
 offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 24
 alignment = 1
 
 [node name="Title" type="Label" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
-text = "* NO DICE *"
+text = "NO DICE"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
-[node name="Divider1" type="Label" parent="MenuContainer/VBoxContainer"]
+[node name="ConfigContainer" type="VBoxContainer" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
-text = "=================================="
-label_settings = SubResource("LabelSettings_subtitle")
-horizontal_alignment = 1
-
-[node name="Copyright" type="Label" parent="MenuContainer/VBoxContainer"]
-layout_mode = 2
-text = "ATARI CORP. (C) 1984
-ALL RIGHTS RESERVED"
-label_settings = SubResource("LabelSettings_subtitle")
-horizontal_alignment = 1
-
-[node name="Divider2" type="Label" parent="MenuContainer/VBoxContainer"]
-layout_mode = 2
-text = "=================================="
-label_settings = SubResource("LabelSettings_subtitle")
-horizontal_alignment = 1
+size_flags_vertical = 3
+alignment = 1
 
 [node name="BlinkPrompt" type="Label" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
 text = "PRESS SPACE OR TAP TO ROLL"
 label_settings = SubResource("LabelSettings_blink")
-horizontal_alignment = 1
-
-[node name="Credits" type="Label" parent="MenuContainer/VBoxContainer"]
-layout_mode = 2
-text = "
-HIGH SCORE: 06    CREDIT 01"
-label_settings = SubResource("LabelSettings_credits")
 horizontal_alignment = 1
