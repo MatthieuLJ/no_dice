@@ -28,7 +28,7 @@ func _physics_process(delta: float) -> void:
 
 		target_gravity_dir = mapped_gravity
 
-		# Calculate continuous physical shake
+		# Calculate dynamic physical shake
 		var total_accel = Input.get_accelerometer()
 		var pure_shake = total_accel - device_gravity
 
@@ -38,7 +38,9 @@ func _physics_process(delta: float) -> void:
 				pure_shake.z,
 				-pure_shake.y
 			)
-			die.apply_central_force(mapped_shake * shake_multiplier)
+			die.apply_central_impulse(mapped_shake * (shake_multiplier * 0.05))
+			var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.02
+			die.apply_torque_impulse(random_spin)
 
 	else:
 		# --- DESKTOP TESTING MODE (Arrow Keys) ---
