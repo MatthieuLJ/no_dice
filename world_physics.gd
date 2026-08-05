@@ -11,9 +11,13 @@ extends Node3D
 @export var max_keyboard_tilt: float = PI / 4.0
 
 var simulated_gravity: Vector3 = Vector3(0, -9.8, 0)
+var shake_cooldown: float = 0.0
 
 func _physics_process(delta: float) -> void:
 	var target_gravity_dir = Vector3.ZERO
+
+	if shake_cooldown > 0.0:
+		shake_cooldown -= delta
 
 	# 1. Check for Mobile Sensors
 	var device_gravity = Input.get_gravity()
@@ -28,11 +32,12 @@ func _physics_process(delta: float) -> void:
 
 		target_gravity_dir = mapped_gravity
 
-		# Calculate dynamic physical shake
+		# Calculate dynamic physical shake with noise filtering and cooldown
 		var total_accel = Input.get_accelerometer()
 		var pure_shake = total_accel - device_gravity
 
-		if pure_shake.length() > shake_threshold:
+		if shake_cooldown <= 0.0 and pure_shake.length() > maxf(8.0, shake_threshold):
+			shake_cooldown = 0.3 # Cooldown prevents per-frame impulse spam
 			var mapped_shake = Vector3(
 				pure_shake.x,
 				pure_shake.z,
@@ -59,10 +64,10 @@ func _physics_process(delta: float) -> void:
 		target_gravity_dir = simulated_gravity
 
 	# 2. Apply the calculated gravity to the Area3D
-	# Area3D splits gravity into a normalized direction vector and a scalar magnitude
+	# Area3D gravity_direction must be a normalized unit vector!
 	if target_gravity_dir.length() > 0.001:
 		gravity_area.gravity_direction = target_gravity_dir.normalized()
-		gravity_area.gravity = target_gravity_dir.length()
+		gravity_area.gravity = 9.8
 
 		# --- DRAW THE DEBUG LINE ---
 		gravity_debugger.draw_gravity_vector(target_gravity_dir)

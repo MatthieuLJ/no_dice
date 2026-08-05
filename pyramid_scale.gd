@@ -1,5 +1,5 @@
 
-extends AnimatableBody3D
+extends StaticBody3D
 
 @onready var wall_north: CollisionShape3D = $Wall_North
 @onready var wall_south: CollisionShape3D = $Wall_South
@@ -22,9 +22,14 @@ func _update_scale() -> void:
 
 	var aspect_ratio = maxf(1.0, view_size.y / view_size.x)
 
-	# Moving the walls to match the aspect ratio of the display
-	wall_north.position = Vector3(0.0, 0.5, -aspect_ratio)
-	wall_south.position = Vector3(0.0, 0.5, aspect_ratio)
+	# Position North and South walls (inner faces aligned at +/- aspect_ratio, extending Y=-0.1 below floor)
+	var offset_z = aspect_ratio + 0.05
+	wall_north.position = Vector3(0.0, 0.4, -offset_z)
+	wall_south.position = Vector3(0.0, 0.4, offset_z)
+
+	# Position East and West side walls (inner faces aligned at +/- 1.0)
+	wall_east.position = Vector3(1.05, 0.4, 0.0)
+	wall_west.position = Vector3(-1.05, 0.4, 0.0)
 
 	# Scale East and West side walls along Z to fill the gap to North/South walls
 	wall_east.scale.z = aspect_ratio

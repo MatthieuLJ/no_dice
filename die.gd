@@ -2,7 +2,7 @@
 extends RigidBody3D
 
 # Drag and drop the Ground node here in the inspector, or let it auto-find
-@export var ground: AnimatableBody3D
+@export var ground: StaticBody3D
 
 func _ready() -> void:
 	# Fallback auto-detection if not set in the inspector

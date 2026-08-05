@@ -9,3 +9,4 @@ func _process(_delta: float) -> void:
 	var gyro = Input.get_gyroscope()
 
 	text = "Gravity: %s\nAccel: %s\nGyro: %s" % [grav, accel, gyro]
+

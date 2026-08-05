@@ -10,7 +10,7 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
 friction = 0.5
-bounce = 0.4
+bounce = 0.0
 absorbent = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
@@ -38,6 +38,7 @@ albedo_color = Color(0.12207278, 0.33307928, 0.11401791, 1)
 material = SubResource("StandardMaterial3D_qmayl")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gxo0y"]
+size = Vector3(10, 1, 10)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lrp3r"]
 size = Vector3(2, 1, 0.1)
@@ -63,10 +64,12 @@ script = ExtResource("1_qmayl")
 [node name="Die" type="RigidBody3D" parent="." unique_id=343189897 node_paths=PackedStringArray("ground")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 physics_material_override = SubResource("PhysicsMaterial_gxo0y")
-can_sleep = false
+mass = 0.5
+inertia = Vector3(0.01, 0.01, 0.01)
+can_sleep = true
 continuous_cd = true
-linear_damp = 0.3
-angular_damp = 0.1
+linear_damp = 0.5
+angular_damp = 1.0
 script = ExtResource("1_fl3nv")
 ground = NodePath("../Enclosure/Ground")
 
@@ -101,16 +104,15 @@ visible = false
 skeleton = NodePath("../..")
 script = ExtResource("4_kwyh5")
 
-[node name="Ground" type="AnimatableBody3D" parent="Enclosure" unique_id=1843248541]
+[node name="Ground" type="StaticBody3D" parent="Enclosure" unique_id=1843248541]
 physics_material_override = SubResource("PhysicsMaterial_gxo0y")
-sync_to_physics = false
 script = ExtResource("2_gxo0y")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Enclosure/Ground" unique_id=504361292]
 mesh = SubResource("PlaneMesh_fl3nv")
 
 [node name="Bottom" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=1002200635]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_gxo0y")
 
 [node name="Wall_North" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=429684385]
@@ -122,11 +124,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 1)
 shape = SubResource("BoxShape3D_da4l3")
 
 [node name="Wall_East" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=658514775]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05, 0.4, 0)
 shape = SubResource("BoxShape3D_pg65m")
 
 [node name="Wall_West" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=425651818]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 0.4, 0)
 shape = SubResource("BoxShape3D_xbu7s")
 
 [node name="Roof" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=1644655478]
