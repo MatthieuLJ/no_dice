@@ -12,6 +12,45 @@ extends Node3D
 
 var simulated_gravity: Vector3 = Vector3(0, -9.8, 0)
 var shake_cooldown: float = 0.0
+var dice: Array[RigidBody3D] = []
+
+func _ready() -> void:
+	dice.append(die)
+
+	var start_menu = get_node_or_null("StartMenu")
+	if start_menu and start_menu.has_signal("menu_dismissed"):
+		start_menu.menu_dismissed.connect(_on_start_menu_dismissed)
+
+func _on_start_menu_dismissed(dice_count: int) -> void:
+	set_dice_count(dice_count)
+
+func set_dice_count(count: int) -> void:
+	count = max(1, count)
+
+	# Remove extra dice
+	for i in range(dice.size() - 1, 0, -1):
+		if is_instance_valid(dice[i]):
+			dice[i].queue_free()
+	dice.resize(1)
+
+	# Reset original die position
+	_reset_die()
+
+	# Spawn additional dice
+	for i in range(1, count):
+		var new_die = die.duplicate() as RigidBody3D
+		add_child(new_die)
+		new_die.position = Vector3(
+			randf_range(-0.3, 0.3),
+			0.1 + (i * 0.12),
+			randf_range(-0.3, 0.3)
+		)
+		new_die.rotation = Vector3(
+			randf_range(0, TAU),
+			randf_range(0, TAU),
+			randf_range(0, TAU)
+		)
+		dice.append(new_die)
 
 func _physics_process(delta: float) -> void:
 	var target_gravity_dir = Vector3.ZERO
@@ -43,9 +82,11 @@ func _physics_process(delta: float) -> void:
 				pure_shake.z,
 				-pure_shake.y
 			)
-			die.apply_central_impulse(mapped_shake * (shake_multiplier * 0.05))
-			var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.02
-			die.apply_torque_impulse(random_spin)
+			for d in dice:
+				if is_instance_valid(d):
+					d.apply_central_impulse(mapped_shake * (shake_multiplier * 0.05))
+					var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.02
+					d.apply_torque_impulse(random_spin)
 
 	else:
 		# --- DESKTOP TESTING MODE (Arrow Keys) ---
@@ -64,12 +105,9 @@ func _physics_process(delta: float) -> void:
 		target_gravity_dir = simulated_gravity
 
 	# 2. Apply the calculated gravity to the Area3D
-	# Area3D gravity_direction must be a normalized unit vector!
 	if target_gravity_dir.length() > 0.001:
 		gravity_area.gravity_direction = target_gravity_dir.normalized()
 		gravity_area.gravity = 9.8
-
-		# --- DRAW THE DEBUG LINE ---
 		gravity_debugger.draw_gravity_vector(target_gravity_dir)
 
 
@@ -100,28 +138,37 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _apply_strong_random_impulse() -> void:
-	var horiz_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
-	if horiz_dir.is_zero_approx():
-		horiz_dir = Vector3.FORWARD
+	for d in dice:
+		if not is_instance_valid(d):
+			continue
+		var horiz_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
+		if horiz_dir.is_zero_approx():
+			horiz_dir = Vector3.FORWARD
 
-	var impulse = horiz_dir * randf_range(1.5, 3.0) * (shake_multiplier * 0.25)
-	impulse.y += randf_range(1.0, 2.5) * (shake_multiplier * 0.25)
+		var impulse = horiz_dir * randf_range(1.5, 3.0) * (shake_multiplier * 0.25)
+		impulse.y += randf_range(1.0, 2.5) * (shake_multiplier * 0.25)
 
-	die.apply_central_impulse(impulse)
+		d.apply_central_impulse(impulse)
 
-	var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * randf_range(0.2, 0.5)
-	die.apply_torque_impulse(random_spin)
+		var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * randf_range(0.2, 0.5)
+		d.apply_torque_impulse(random_spin)
 
 func _apply_randomized_jerk(base_direction: Vector3) -> void:
-	var random_jerk = base_direction * randf_range(0.8, 1.2) * (shake_multiplier * 0.1)
-	random_jerk.y += randf_range(0.3, 0.6) * (shake_multiplier * 0.1)
+	for d in dice:
+		if not is_instance_valid(d):
+			continue
+		var random_jerk = base_direction * randf_range(0.8, 1.2) * (shake_multiplier * 0.1)
+		random_jerk.y += randf_range(0.3, 0.6) * (shake_multiplier * 0.1)
 
-	die.apply_central_impulse(random_jerk)
+		d.apply_central_impulse(random_jerk)
 
-	var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.05
-	die.apply_torque_impulse(random_spin)
+		var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.05
+		d.apply_torque_impulse(random_spin)
 
 func _reset_die() -> void:
-	die.global_position = Vector3(0, 1.0, 0)
-	die.linear_velocity = Vector3.ZERO
-	die.angular_velocity = Vector3.ZERO
+	for i in range(dice.size()):
+		var d = dice[i]
+		if is_instance_valid(d):
+			d.global_position = Vector3(randf_range(-0.2, 0.2), 0.5 + (i * 0.12), randf_range(-0.2, 0.2))
+			d.linear_velocity = Vector3.ZERO
+			d.angular_velocity = Vector3.ZERO

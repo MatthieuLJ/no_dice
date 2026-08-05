@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c53k10u2x82y"]
+[gd_scene load_steps=7 format=3 uid="uid://c53k10u2x82y"]
 
 [ext_resource type="Script" uid="uid://dm0v4n2k12xl" path="res://start_menu.gd" id="1_start"]
 [ext_resource type="Shader" uid="uid://d1082u418y" path="res://shaders/screen_blur.gdshader" id="2_blur"]
@@ -12,6 +12,12 @@ shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
 font_size = 48
 font_color = Color(0.2, 1.0, 0.4, 1)
 shadow_size = 8
+shadow_color = Color(0.0, 0.4, 0.1, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_config"]
+font_size = 28
+font_color = Color(0.3, 1.0, 0.5, 1)
+shadow_size = 4
 shadow_color = Color(0.0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_blink"]
@@ -62,10 +68,35 @@ text = "NO DICE"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
-[node name="ConfigContainer" type="VBoxContainer" parent="MenuContainer/VBoxContainer"]
+[node name="ConfigContainer" type="HBoxContainer" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 16
 alignment = 1
+
+[node name="D6Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+text = "d6"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+text = "-"
+
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "1"
+label_settings = SubResource("LabelSettings_config")
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+text = "+"
 
 [node name="BlinkPrompt" type="Label" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
