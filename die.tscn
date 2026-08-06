@@ -9,6 +9,13 @@
 [ext_resource type="Script" uid="uid://6lbk11xr68tm" path="res://gravity_debugger.gd" id="4_kwyh5"]
 [ext_resource type="PackedScene" uid="uid://c53k10u2x82y" path="res://start_menu.tscn" id="5_start"]
 
+[sub_resource type="Environment" id="Environment_stadium"]
+background_mode = 1
+background_color = Color(0.12, 0.18, 0.12, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.65, 0.75, 0.65, 1)
+ambient_light_energy = 1.2
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
 friction = 0.5
 bounce = 0.0
@@ -81,14 +88,44 @@ shape = SubResource("BoxShape3D_lbo6s")
 material_override = SubResource("StandardMaterial3D_u0y2o")
 mesh = SubResource("ArrayMesh_snfj7")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=68554707]
-transform = Transform3D(0.9396926, -0.0885213, 0.3302062, 0, 0.9659258, 0.258819, -0.3420201, -0.2432108, 0.9076734, 0, 3, 0)
-light_color = Color(0.98, 0.96, 0.92, 1)
-light_energy = 1.5
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=987654321]
+environment = SubResource("Environment_stadium")
+
+[node name="StadiumLight_NW" type="OmniLight3D" parent="." unique_id=68554707]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 4.5, -1.5)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 2.0
 shadow_enabled = true
-shadow_bias = 0.005
-shadow_normal_bias = 1.0
-directional_shadow_max_distance = 8.0
+shadow_bias = 0.01
+omni_range = 12.0
+omni_attenuation = 0.5
+
+[node name="StadiumLight_NE" type="OmniLight3D" parent="." unique_id=68554708]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 4.5, -1.5)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 2.0
+shadow_enabled = true
+shadow_bias = 0.01
+omni_range = 12.0
+omni_attenuation = 0.5
+
+[node name="StadiumLight_SW" type="OmniLight3D" parent="." unique_id=68554709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 4.5, 1.5)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 2.0
+shadow_enabled = true
+shadow_bias = 0.01
+omni_range = 12.0
+omni_attenuation = 0.5
+
+[node name="StadiumLight_SE" type="OmniLight3D" parent="." unique_id=68554710]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 4.5, 1.5)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 2.0
+shadow_enabled = true
+shadow_bias = 0.01
+omni_range = 12.0
+omni_attenuation = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=50445828]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)
