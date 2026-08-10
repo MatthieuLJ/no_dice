@@ -3,6 +3,7 @@ extends Node3D
 @onready var d6: RigidBody3D = get_node_or_null("D6")
 @onready var d4: RigidBody3D = get_node_or_null("D4")
 @onready var d8: RigidBody3D = get_node_or_null("D8")
+@onready var d10: RigidBody3D = get_node_or_null("D10")
 @onready var gravity_area: Area3D = $Enclosure/GravityArea
 @onready var gravity_debugger: MeshInstance3D = $Enclosure/GravityDebugger
 
@@ -19,6 +20,7 @@ func _ready() -> void:
 	if d6: dice.append(d6)
 	if d4: dice.append(d4)
 	if d8: dice.append(d8)
+	if d10: dice.append(d10)
 
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.has_signal("menu_dismissed"):
