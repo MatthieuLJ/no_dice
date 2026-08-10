@@ -42,20 +42,22 @@ func set_dice_count(count: int) -> void:
 	_reset_die()
 
 	# Spawn additional dice
-	for i in range(1, count):
-		var new_die = die.duplicate() as RigidBody3D
-		add_child(new_die)
-		new_die.position = Vector3(
-			randf_range(-0.3, 0.3),
-			0.1 + (i * 0.12),
-			randf_range(-0.3, 0.3)
-		)
-		new_die.rotation = Vector3(
-			randf_range(0, TAU),
-			randf_range(0, TAU),
-			randf_range(0, TAU)
-		)
-		dice.append(new_die)
+	var base_die: RigidBody3D = d6 if d6 else (d10 if d10 else (d8 if d8 else d4))
+	if base_die:
+		for i in range(1, count):
+			var new_die = base_die.duplicate() as RigidBody3D
+			add_child(new_die)
+			new_die.position = Vector3(
+				randf_range(-0.3, 0.3),
+				0.1 + (i * 0.12),
+				randf_range(-0.3, 0.3)
+			)
+			new_die.rotation = Vector3(
+				randf_range(0, TAU),
+				randf_range(0, TAU),
+				randf_range(0, TAU)
+			)
+			dice.append(new_die)
 
 func _physics_process(delta: float) -> void:
 	var target_gravity_dir = Vector3.ZERO
