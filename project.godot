@@ -19,10 +19,6 @@ run/main_scene="uid://7y1gcfc1k42k"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/gemini_godot/plugin.cfg")
-
 [display]
 
 window/size/viewport_width=1080
