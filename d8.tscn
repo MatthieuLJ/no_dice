@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8n8y2d8t1a1"]
+
+[ext_resource type="Script" uid="uid://dm0d8d8s12xl" path="res://d8.gd" id="1_d8"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_d8"]
+friction = 0.5
+bounce = 0.0
+absorbent = true
+
+[node name="D8" type="RigidBody3D" unique_id=981273468]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.5, -0.1)
+mass = 0.5
+physics_material_override = SubResource("PhysicsMaterial_d8")
+inertia = Vector3(0.01, 0.01, 0.01)
+can_sleep = true
+continuous_cd = true
+linear_damp = 0.5
+angular_damp = 1.0
+script = ExtResource("1_d8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=981273469]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=981273470]

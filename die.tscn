@@ -8,6 +8,9 @@
 [ext_resource type="Script" uid="uid://c8qbq4dlfg1pa" path="res://debug_label.gd" id="3_muu1c"]
 [ext_resource type="Script" uid="uid://6lbk11xr68tm" path="res://gravity_debugger.gd" id="4_kwyh5"]
 [ext_resource type="PackedScene" uid="uid://c53k10u2x82y" path="res://start_menu.tscn" id="5_start"]
+[ext_resource type="PackedScene" uid="uid://c8n4y2d4t1a1" path="res://d4.tscn" id="6_d4"]
+[ext_resource type="PackedScene" uid="uid://d6die7c1k42k" path="res://d6.tscn" id="7_d6"]
+[ext_resource type="PackedScene" uid="uid://c8n8y2d8t1a1" path="res://d8.tscn" id="8_d8"]
 
 [sub_resource type="Environment" id="Environment_stadium"]
 background_mode = 1
@@ -69,24 +72,11 @@ size = Vector3(4, 4, 4)
 [node name="Node3D" type="Node3D" unique_id=199600776]
 script = ExtResource("1_qmayl")
 
-[node name="Die" type="RigidBody3D" parent="." unique_id=343189897 node_paths=PackedStringArray("ground")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
-physics_material_override = SubResource("PhysicsMaterial_gxo0y")
-mass = 0.5
-inertia = Vector3(0.01, 0.01, 0.01)
-can_sleep = true
-continuous_cd = true
-linear_damp = 0.5
-angular_damp = 1.0
-script = ExtResource("1_fl3nv")
-ground = NodePath("../Enclosure/Ground")
+[node name="D6" parent="." unique_id=1249358053 instance=ExtResource("7_d6")]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Die" unique_id=1056087167]
-shape = SubResource("BoxShape3D_lbo6s")
+[node name="D4" parent="." unique_id=590580924 instance=ExtResource("6_d4")]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Die" unique_id=1411984034]
-material_override = SubResource("StandardMaterial3D_u0y2o")
-mesh = SubResource("ArrayMesh_snfj7")
+[node name="D8" parent="." unique_id=1347303533 instance=ExtResource("8_d8")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=987654321]
 environment = SubResource("Environment_stadium")

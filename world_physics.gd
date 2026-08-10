@@ -1,7 +1,8 @@
 extends Node3D
 
-@onready var die: RigidBody3D = $Die
-# Add the reference to your new Area3D
+@onready var d6: RigidBody3D = get_node_or_null("D6")
+@onready var d4: RigidBody3D = get_node_or_null("D4")
+@onready var d8: RigidBody3D = get_node_or_null("D8")
 @onready var gravity_area: Area3D = $Enclosure/GravityArea
 @onready var gravity_debugger: MeshInstance3D = $Enclosure/GravityDebugger
 
@@ -15,7 +16,9 @@ var shake_cooldown: float = 0.0
 var dice: Array[RigidBody3D] = []
 
 func _ready() -> void:
-	dice.append(die)
+	if d6: dice.append(d6)
+	if d4: dice.append(d4)
+	if d8: dice.append(d8)
 
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.has_signal("menu_dismissed"):
