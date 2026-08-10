@@ -26,8 +26,62 @@ func _ready() -> void:
 	if start_menu and start_menu.has_signal("menu_dismissed"):
 		start_menu.menu_dismissed.connect(_on_start_menu_dismissed)
 
-func _on_start_menu_dismissed(dice_count: int) -> void:
-	set_dice_count(dice_count)
+func _on_start_menu_dismissed(param: Variant) -> void:
+	if param is Dictionary:
+		set_multi_dice_counts(param)
+	elif param is int:
+		set_dice_count(param)
+
+func set_multi_dice_counts(counts: Dictionary) -> void:
+	# Clear previous extra spawned dice
+	for i in range(dice.size() - 1, -1, -1):
+		if is_instance_valid(dice[i]):
+			var node = dice[i]
+			if node != d4 and node != d6 and node != d8 and node != d10:
+				node.queue_free()
+	dice.clear()
+
+	var dice_map: Dictionary = {
+		"d4": d4,
+		"d6": d6,
+		"d8": d8,
+		"d10": d10
+	}
+
+	var spawn_idx: int = 0
+	for type_key in ["d4", "d6", "d8", "d10"]:
+		var req_count: int = int(counts.get(type_key, 0))
+		var base_die = dice_map.get(type_key) as RigidBody3D
+		if not is_instance_valid(base_die):
+			continue
+
+		if req_count > 0:
+			base_die.visible = true
+			base_die.process_mode = PROCESS_MODE_INHERIT
+			dice.append(base_die)
+			base_die.position = Vector3(
+				randf_range(-0.25, 0.25),
+				0.1 + (spawn_idx * 0.12),
+				randf_range(-0.25, 0.25)
+			)
+			base_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
+			spawn_idx += 1
+
+			for i in range(1, req_count):
+				var extra_die = base_die.duplicate() as RigidBody3D
+				add_child(extra_die)
+				extra_die.visible = true
+				extra_die.position = Vector3(
+					randf_range(-0.25, 0.25),
+					0.1 + (spawn_idx * 0.12),
+					randf_range(-0.25, 0.25)
+				)
+				extra_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
+				dice.append(extra_die)
+				spawn_idx += 1
+		else:
+			base_die.visible = false
+			base_die.process_mode = PROCESS_MODE_DISABLED
 
 func set_dice_count(count: int) -> void:
 	count = max(1, count)

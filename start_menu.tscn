@@ -15,7 +15,7 @@ shadow_size = 8
 shadow_color = Color(0.0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_config"]
-font_size = 28
+font_size = 24
 font_color = Color(0.3, 1.0, 0.5, 1)
 shadow_size = 4
 shadow_color = Color(0.0, 0.4, 0.1, 0.8)
@@ -54,12 +54,12 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -250.0
-offset_top = -180.0
+offset_top = -220.0
 offset_right = 250.0
-offset_bottom = 180.0
+offset_bottom = 220.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="Title" type="Label" parent="MenuContainer/VBoxContainer"]
@@ -68,32 +68,127 @@ text = "NO DICE"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
-[node name="ConfigContainer" type="HBoxContainer" parent="MenuContainer/VBoxContainer"]
+[node name="ConfigContainer" type="VBoxContainer" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RowD4" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="D6Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="D4Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
-text = "d6"
+text = "d4"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer"]
-custom_minimum_size = Vector2(40, 40)
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 size_flags_vertical = 4
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer"]
-custom_minimum_size = Vector2(40, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_config")
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "+"
+
+[node name="RowD6" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="D6Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "d6"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "-"
+
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(36, 0)
 layout_mode = 2
 text = "1"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer"]
-custom_minimum_size = Vector2(40, 40)
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "+"
+
+[node name="RowD8" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="D8Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "d8"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "-"
+
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_config")
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "+"
+
+[node name="RowD10" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="D10Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "d10"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "-"
+
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_config")
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(36, 36)
 layout_mode = 2
 size_flags_vertical = 4
 text = "+"
