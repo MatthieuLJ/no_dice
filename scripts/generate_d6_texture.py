@@ -70,5 +70,5 @@ if __name__ == '__main__':
             pips = row * 3 + col + 1
             draw_face(col, row, pips)
 
-    img.save('textures/dice_texture.png')
-    print('Successfully updated textures/dice_texture.png with black pips on all faces')
+    img.save('textures/d6_texture.png')
+    print('Successfully updated textures/d6_texture.png with black pips on all faces')

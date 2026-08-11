@@ -60,7 +60,7 @@ func _setup_d6_mesh() -> void:
 	var array_mesh = st.commit()
 
 	var mat = StandardMaterial3D.new()
-	var texture_path = "res://textures/dice_texture.png"
+	var texture_path = "res://textures/d6_texture.png"
 	if ResourceLoader.exists(texture_path):
 		mat.albedo_texture = load(texture_path)
 	mat.roughness = 0.85
