@@ -21,7 +21,7 @@ def create_d4_texture():
         font = ImageFont.load_default()
 
     for gx, gy, num_top, num_left, num_right in faces:
-        face_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
+        face_img = Image.new("RGBA", (cell_w, cell_h), (210, 65, 30, 255))
         draw = ImageDraw.Draw(face_img)
 
         # Triangle vertices inside cell
@@ -67,12 +67,13 @@ def create_d4_texture():
             py = int(center_pos[1] - 150)
             face_img.alpha_composite(txt_img, (px, py))
 
-        # Top digit (near top apex): top of text points UP (0 deg)
-        draw_digit(num_top, (512, 290), 0)
-        # Left digit (near bottom-left corner): top of text points down-left (+120 deg)
-        draw_digit(num_left, (330, 730), 120)
-        # Right digit (near bottom-right corner): top of text points down-right (-120 deg)
-        draw_digit(num_right, (694, 730), -120)
+        # Exact calculated symmetric digit centers: each digit is at uniform 200px distance from its vertex apex
+        # Top digit (near top apex): top of text points UP (0 deg), center at (512, 320)
+        draw_digit(num_top, (512, 320), 0)
+        # Left digit (near bottom-left corner): top of text points down-left (+120 deg), center at (288, 772)
+        draw_digit(num_left, (288, 772), 120)
+        # Right digit (near bottom-right corner): top of text points down-right (-120 deg), center at (736, 772)
+        draw_digit(num_right, (736, 772), -120)
 
         # Paste cell into atlas
         image.alpha_composite(face_img, (gx * cell_w, gy * cell_h))
