@@ -193,6 +193,36 @@ layout_mode = 2
 size_flags_vertical = 4
 text = "+"
 
+[node name="RowD12" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="D12Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "d12"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "-"
+
+[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_config")
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "+"
+
 [node name="BlinkPrompt" type="Label" parent="MenuContainer/VBoxContainer"]
 layout_mode = 2
 text = "PRESS SPACE OR TAP TO ROLL"

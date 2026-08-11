@@ -4,6 +4,7 @@ extends Node3D
 @onready var d4: RigidBody3D = get_node_or_null("D4")
 @onready var d8: RigidBody3D = get_node_or_null("D8")
 @onready var d10: RigidBody3D = get_node_or_null("D10")
+@onready var d12: RigidBody3D = get_node_or_null("D12")
 @onready var gravity_area: Area3D = $Enclosure/GravityArea
 @onready var gravity_debugger: MeshInstance3D = $Enclosure/GravityDebugger
 
@@ -21,6 +22,7 @@ func _ready() -> void:
 	if d4: dice.append(d4)
 	if d8: dice.append(d8)
 	if d10: dice.append(d10)
+	if d12: dice.append(d12)
 
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.has_signal("menu_dismissed"):
@@ -37,7 +39,7 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 	for i in range(dice.size() - 1, -1, -1):
 		if is_instance_valid(dice[i]):
 			var node = dice[i]
-			if node != d4 and node != d6 and node != d8 and node != d10:
+			if node != d4 and node != d6 and node != d8 and node != d10 and node != d12:
 				node.queue_free()
 	dice.clear()
 
@@ -45,11 +47,12 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 		"d4": d4,
 		"d6": d6,
 		"d8": d8,
-		"d10": d10
+		"d10": d10,
+		"d12": d12
 	}
 
 	var spawn_idx: int = 0
-	for type_key in ["d4", "d6", "d8", "d10"]:
+	for type_key in ["d4", "d6", "d8", "d10", "d12"]:
 		var req_count: int = int(counts.get(type_key, 0))
 		var base_die = dice_map.get(type_key) as RigidBody3D
 		if not is_instance_valid(base_die):
