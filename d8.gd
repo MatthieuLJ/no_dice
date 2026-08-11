@@ -6,15 +6,16 @@ const R: float = 0.085 # Circumradius matching D6 size
 static var VERTICES: Array[Vector3] = []
 
 # Symmetric face specs: tri is 3D CCW outward; top, bl, br map to exact non-mirrored 2D UV corners
+# Opposite face pairs sum to constant 9 (1+8, 2+7, 3+6, 4+5)
 static var FACE_SPECS: Array = [
 	{ "tri": Vector3i(0, 4, 2), "top": 2, "bl": 4, "br": 0 }, # Face 0 (Num 1: +X, +Y, +Z)
-	{ "tri": Vector3i(0, 3, 4), "top": 0, "bl": 4, "br": 3 }, # Face 1 (Num 8: +X, -Y, +Z)
-	{ "tri": Vector3i(0, 2, 5), "top": 2, "bl": 0, "br": 5 }, # Face 2 (Num 2: +X, +Y, -Z)
-	{ "tri": Vector3i(0, 5, 3), "top": 0, "bl": 3, "br": 5 }, # Face 3 (Num 7: +X, -Y, -Z)
-	{ "tri": Vector3i(1, 5, 2), "top": 2, "bl": 5, "br": 1 }, # Face 4 (Num 3: -X, +Y, -Z)
-	{ "tri": Vector3i(1, 3, 5), "top": 1, "bl": 5, "br": 3 }, # Face 5 (Num 6: -X, -Y, -Z)
-	{ "tri": Vector3i(1, 2, 4), "top": 2, "bl": 1, "br": 4 }, # Face 6 (Num 4: -X, +Y, +Z)
-	{ "tri": Vector3i(1, 4, 3), "top": 1, "bl": 3, "br": 4 }  # Face 7 (Num 5: -X, -Y, +Z)
+	{ "tri": Vector3i(0, 2, 5), "top": 2, "bl": 0, "br": 5 }, # Face 1 (Num 2: +X, +Y, -Z)
+	{ "tri": Vector3i(1, 2, 4), "top": 2, "bl": 1, "br": 4 }, # Face 2 (Num 3: -X, +Y, +Z)
+	{ "tri": Vector3i(1, 5, 2), "top": 2, "bl": 5, "br": 1 }, # Face 3 (Num 4: -X, +Y, -Z)
+	{ "tri": Vector3i(0, 3, 4), "top": 0, "bl": 4, "br": 3 }, # Face 4 (Num 5: +X, -Y, +Z, opposite Face 3 = 4)
+	{ "tri": Vector3i(0, 5, 3), "top": 0, "bl": 3, "br": 5 }, # Face 5 (Num 6: +X, -Y, -Z, opposite Face 2 = 3)
+	{ "tri": Vector3i(1, 4, 3), "top": 1, "bl": 3, "br": 4 }, # Face 6 (Num 7: -X, -Y, +Z, opposite Face 1 = 2)
+	{ "tri": Vector3i(1, 3, 5), "top": 1, "bl": 5, "br": 3 }  # Face 7 (Num 8: -X, -Y, -Z, opposite Face 0 = 1)
 ]
 
 static func _static_init() -> void:

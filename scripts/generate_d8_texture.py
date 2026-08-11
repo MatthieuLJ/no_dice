@@ -6,9 +6,8 @@ def create_d8_texture():
     cell_w, cell_h = 512, 512
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     
-    # 8 Faces arranged in 4x2 grid
-    # Numbers 1 through 8
-    face_nums = ["1", "8", "2", "7", "3", "6", "4", "5"]
+    # 8 Faces arranged in 4x2 grid (1..8 matching FACE_SPECS opposite pairing: 1+8=9, 2+7=9, 3+6=9, 4+5=9)
+    face_nums = ["1", "2", "3", "4", "5", "6.", "7", "8"]
     
     try:
         font = ImageFont.truetype("arial.ttf", 130)

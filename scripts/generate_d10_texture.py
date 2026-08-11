@@ -6,8 +6,8 @@ def create_d10_texture():
     cell_w, cell_h = 409, 512
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     
-    # 10 Faces arranged in 5x2 grid: 0 through 9
-    face_nums = ["0", "9", "1", "8", "2", "7", "3", "6", "4", "5"]
+    # 10 Faces arranged in 5x2 grid (0..9 matching 3D opposite kite pairs: 0+9=9, 1+8=9, 2+7=9, 3+6=9, 4+5=9)
+    face_nums = ["0", "1", "2", "3", "4", "6.", "5", "9.", "8", "7"]
     
     try:
         font = ImageFont.truetype("arial.ttf", 130)

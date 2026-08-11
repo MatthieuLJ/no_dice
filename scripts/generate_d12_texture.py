@@ -7,8 +7,8 @@ def create_d12_texture():
     cell_w, cell_h = 512, 341
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     
-    # 12 Faces arranged in 4x3 grid: 1 through 12
-    face_nums = ["1", "12", "2", "11", "3", "10", "4", "9", "5", "8", "6", "7"]
+    # 12 Faces arranged in 4x3 grid (1..12 matching 3D opposite pentagon face pairs: 1+12=13, 2+11=13, 3+10=13, 4+9=13, 5+8=13, 6+7=13)
+    face_nums = ["1", "2", "3", "4", "5", "9", "6", "12", "7", "8", "10", "11"]
     
     try:
         font = ImageFont.truetype("arial.ttf", 130)
