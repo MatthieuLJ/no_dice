@@ -193,6 +193,23 @@ layout_mode = 2
 size_flags_vertical = 4
 text = "+"
 
+[node name="D10ModeRow" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="D10ModeLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/D10ModeRow"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "d10 mode"
+label_settings = SubResource("LabelSettings_config")
+
+[node name="D10ModeButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/D10ModeRow"]
+custom_minimum_size = Vector2(110, 36)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Low 0"
+
 [node name="RowD12" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
 layout_mode = 2
 theme_override_constants/separation = 16

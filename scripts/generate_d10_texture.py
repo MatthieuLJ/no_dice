@@ -1,14 +1,11 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-def create_d10_texture():
+def generate_atlas(face_nums, filename):
     width, height = 2048, 1024
     cell_w, cell_h = 409, 512
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    
-    # 10 Faces arranged in 5x2 grid (0..9 matching 3D opposite kite pairs: 0+9=9, 1+8=9, 2+7=9, 3+6=9, 4+5=9)
-    face_nums = ["0", "1", "2", "3", "4", "6.", "5", "9.", "8", "7"]
-    
+
     try:
         font = ImageFont.truetype("arial.ttf", 130)
     except IOError:
@@ -56,9 +53,18 @@ def create_d10_texture():
         image.alpha_composite(face_img, (gx * cell_w, gy * cell_h))
 
     os.makedirs("textures", exist_ok=True)
-    out_path = os.path.join("textures", "d10_texture.png")
+    out_path = os.path.join("textures", filename)
     image.save(out_path, "PNG")
     print(f"D10 Texture generated successfully at {out_path}")
 
+def create_d10_textures():
+    # 1. Standard D10 ("Low 0"): 0..9 (opposite pairs sum = 9)
+    nums_low = ["0", "1", "2", "3", "4", "6.", "5", "9.", "8", "7"]
+    generate_atlas(nums_low, "d10_texture.png")
+
+    # 2. Alternate D10 ("High 10"): 1..10 (opposite pairs sum = 11: 1+10, 2+9, 3+8, 4+7, 5+6)
+    nums_high = ["1", "2", "3", "4", "5", "7", "6.", "10", "9.", "8"]
+    generate_atlas(nums_high, "d10_high_texture.png")
+
 if __name__ == "__main__":
-    create_d10_texture()
+    create_d10_textures()

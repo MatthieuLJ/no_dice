@@ -1,6 +1,7 @@
 extends RigidBody3D
 
 @export var ground: StaticBody3D
+@export var is_high_10: bool = false
 
 const R: float = 0.085 # Circumradius matching D6 size
 static var VERTICES: Array[Vector3] = []
@@ -70,7 +71,8 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
 		var mat = StandardMaterial3D.new()
-		var tex = load("res://textures/d10_texture.png")
+		var tex_path = "res://textures/d10_high_texture.png" if is_high_10 else "res://textures/d10_texture.png"
+		var tex = load(tex_path)
 		if tex:
 			mat.albedo_texture = tex
 			mat.albedo_color = Color.WHITE
@@ -80,6 +82,7 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 		mat.metallic = 0.0
 		mat.specular = 0.5
 		st.set_material(mat)
+		mesh_inst.material_override = mat
 
 		# 10 Kite Faces
 		for k_idx in range(KITES.size()):
@@ -132,6 +135,22 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 				st.set_normal(flat_normal); st.set_uv(uv_bot); st.add_vertex(vC)
 
 		mesh_inst.mesh = st.commit()
+
+func set_d10_mode(high_10: bool) -> void:
+	is_high_10 = high_10
+	var tex_path = "res://textures/d10_high_texture.png" if is_high_10 else "res://textures/d10_texture.png"
+	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh_inst:
+		var tex = load(tex_path)
+		if tex:
+			if not mesh_inst.material_override:
+				var mat = StandardMaterial3D.new()
+				mat.roughness = 0.4
+				mat.metallic = 0.0
+				mat.specular = 0.5
+				mat.albedo_color = Color.WHITE
+				mesh_inst.material_override = mat
+			(mesh_inst.material_override as StandardMaterial3D).albedo_texture = tex
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not ground:

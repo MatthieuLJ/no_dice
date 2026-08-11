@@ -51,12 +51,17 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 		"d12": d12
 	}
 
+	var is_d10_high: bool = (counts.get("d10_mode", "low_0") == "high_10")
+
 	var spawn_idx: int = 0
 	for type_key in ["d4", "d6", "d8", "d10", "d12"]:
 		var req_count: int = int(counts.get(type_key, 0))
 		var base_die = dice_map.get(type_key) as RigidBody3D
 		if not is_instance_valid(base_die):
 			continue
+
+		if type_key == "d10" and base_die.has_method("set_d10_mode"):
+			base_die.call("set_d10_mode", is_d10_high)
 
 		if req_count > 0:
 			base_die.visible = true
@@ -73,6 +78,8 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 
 			for i in range(1, req_count):
 				var extra_die = base_die.duplicate() as RigidBody3D
+				if type_key == "d10" and extra_die.has_method("set_d10_mode"):
+					extra_die.call("set_d10_mode", is_d10_high)
 				add_child(extra_die)
 				extra_die.visible = true
 				
