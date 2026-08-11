@@ -40,12 +40,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		current_transform.origin = ground.to_global(safe_local_pos)
 		state.transform = current_transform
 
-		# Zero out velocity on clamped axis to prevent clipping loop acceleration
-		if clamped_x != local_pos.x:
+		# Zero out velocity on clamped axis only if moving toward boundary to prevent clipping loop acceleration
+		if clamped_x != local_pos.x and signf(state.linear_velocity.x) == signf(local_pos.x):
 			state.linear_velocity.x = 0.0
-		if clamped_y != local_pos.y:
+		if clamped_y != local_pos.y and signf(state.linear_velocity.y) == signf(local_pos.y):
 			state.linear_velocity.y = 0.0
-		if clamped_z != local_pos.z:
+		if clamped_z != local_pos.z and signf(state.linear_velocity.z) == signf(local_pos.z):
 			state.linear_velocity.z = 0.0
 
 	# Emergency fallback recovery if the die clips far out of the world

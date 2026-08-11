@@ -62,11 +62,12 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 			base_die.visible = true
 			base_die.process_mode = PROCESS_MODE_INHERIT
 			dice.append(base_die)
-			base_die.position = Vector3(
-				randf_range(-0.25, 0.25),
-				0.1 + (spawn_idx * 0.12),
-				randf_range(-0.25, 0.25)
-			)
+			
+			var col_x = (spawn_idx % 5) * 0.12 - 0.24
+			var row_z = (spawn_idx / 5) * 0.12 - 0.24
+			var spawn_y = 0.15 + (randf() * 0.15)
+
+			base_die.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
 			base_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
 			spawn_idx += 1
 
@@ -74,11 +75,12 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 				var extra_die = base_die.duplicate() as RigidBody3D
 				add_child(extra_die)
 				extra_die.visible = true
-				extra_die.position = Vector3(
-					randf_range(-0.25, 0.25),
-					0.1 + (spawn_idx * 0.12),
-					randf_range(-0.25, 0.25)
-				)
+				
+				col_x = (spawn_idx % 5) * 0.12 - 0.24
+				row_z = (spawn_idx / 5) * 0.12 - 0.24
+				spawn_y = 0.15 + (randf() * 0.15)
+
+				extra_die.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
 				extra_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
 				dice.append(extra_die)
 				spawn_idx += 1
