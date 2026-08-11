@@ -1,10 +1,8 @@
-[gd_scene format=4 uid="uid://7y1gcfc1k42k"]
+[gd_scene format=3 uid="uid://7y1gcfc1k42k"]
 
-[ext_resource type="Script" uid="uid://m7ddishsxomf" path="res://die.gd" id="1_fl3nv"]
 [ext_resource type="Script" uid="uid://dqtubdrvfxqa3" path="res://world_physics.gd" id="1_qmayl"]
 [ext_resource type="Script" uid="uid://d2sx1kedg257t" path="res://pyramid_scale.gd" id="2_gxo0y"]
 [ext_resource type="Script" uid="uid://cgu1ldy470jwa" path="res://camera.gd" id="2_q3244"]
-[ext_resource type="Texture2D" uid="uid://u27p6h3ssco2" path="res://textures/d6_texture.png" id="3_183hu"]
 [ext_resource type="Script" uid="uid://c8qbq4dlfg1pa" path="res://debug_label.gd" id="3_muu1c"]
 [ext_resource type="Script" uid="uid://6lbk11xr68tm" path="res://gravity_debugger.gd" id="4_kwyh5"]
 [ext_resource type="PackedScene" uid="uid://c53k10u2x82y" path="res://start_menu.tscn" id="5_start"]
@@ -22,26 +20,7 @@ ambient_light_energy = 1.2
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
 friction = 0.5
-bounce = 0.0
 absorbent = true
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
-size = Vector3(0.1, 0.1, 0.1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u0y2o"]
-albedo_texture = ExtResource("3_183hu")
-roughness = 0.85
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_snfj7"]
-_surfaces = [{
-"aabb": AABB(-0.05, -0.05, -0.05, 0.1, 0.1, 0.1),
-"attribute_data": PackedByteArray("AAAAAAAAAACrqqo+AAAAAKuqqj4AAAA/AAAAAAAAAACrqqo+AAAAPwAAAAAAAAA/q6oqPwAAAD8AAIA/AAAAPwAAgD8AAIA/q6oqPwAAAD8AAIA/AACAP6uqKj8AAIA/q6qqPgAAAACrqio/AAAAAKuqKj8AAAA/q6qqPgAAAACrqio/AAAAP6uqqj4AAAA/q6qqPgAAAD+rqio/AAAAP6uqKj8AAIA/q6qqPgAAAD+rqio/AACAP6uqqj4AAIA/q6oqPwAAAAAAAIA/AAAAAAAAgD8AAAA/q6oqPwAAAAAAAIA/AAAAP6uqKj8AAAA/AAAAAAAAAD+rqqo+AAAAP6uqqj4AAIA/AAAAAAAAAD+rqqo+AACAPwAAAAAAAIA/"),
-"format": 34359738391,
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 36,
-"vertex_data": PackedByteArray("zcxMvc3MTD3NzEw9zcxMPc3MTD3NzEw9zcxMPc3MTL3NzEw9zcxMvc3MTD3NzEw9zcxMPc3MTL3NzEw9zcxMvc3MTL3NzEw9zcxMPc3MTD3NzEy9zcxMvc3MTD3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTD3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTL3NzEy9zcxMvc3MTD3NzEy9zcxMPc3MTD3NzEy9zcxMPc3MTD3NzEw9zcxMvc3MTD3NzEy9zcxMPc3MTD3NzEw9zcxMvc3MTD3NzEw9zcxMvc3MTL3NzEw9zcxMPc3MTL3NzEw9zcxMPc3MTL3NzEy9zcxMvc3MTL3NzEw9zcxMPc3MTL3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTD3NzEw9zcxMPc3MTD3NzEy9zcxMPc3MTL3NzEy9zcxMPc3MTD3NzEw9zcxMPc3MTL3NzEy9zcxMPc3MTL3NzEw9zcxMvc3MTD3NzEy9zcxMvc3MTD3NzEw9zcxMvc3MTL3NzEw9zcxMvc3MTD3NzEy9zcxMvc3MTL3NzEw9zcxMvc3MTL3NzEy9/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA//////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/")
-}]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qmayl"]
 albedo_color = Color(0.12207278, 0.33307928, 0.11401791, 1)
@@ -79,7 +58,7 @@ script = ExtResource("1_qmayl")
 
 [node name="D8" parent="." unique_id=1347303533 instance=ExtResource("8_d8")]
 
-[node name="D10" parent="." instance=ExtResource("9_d10")]
+[node name="D10" parent="." unique_id=803693883 instance=ExtResource("9_d10")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=987654321]
 environment = SubResource("Environment_stadium")
@@ -179,4 +158,4 @@ offset_right = 40.0
 offset_bottom = 23.0
 script = ExtResource("3_muu1c")
 
-[node name="StartMenu" parent="." instance=ExtResource("5_start")]
+[node name="StartMenu" parent="." unique_id=1347869088 instance=ExtResource("5_start")]
