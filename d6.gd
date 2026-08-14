@@ -55,3 +55,31 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.transform = reset_transform
 		state.linear_velocity = Vector3.ZERO
 		state.angular_velocity = Vector3.ZERO
+
+func get_upward_value() -> Dictionary:
+	var up: Vector3 = Vector3.UP
+	if ground:
+		up = ground.global_transform.basis.y.normalized()
+
+	var faces = [
+		{ "normal": Vector3(0, 1, 0), "value": 2 },
+		{ "normal": Vector3(0, -1, 0), "value": 5 },
+		{ "normal": Vector3(1, 0, 0), "value": 3 },
+		{ "normal": Vector3(-1, 0, 0), "value": 4 },
+		{ "normal": Vector3(0, 0, 1), "value": 1 },
+		{ "normal": Vector3(0, 0, -1), "value": 6 }
+	]
+
+	var best_dot: float = -1.0
+	var best_val: int = 1
+	var b: Basis = global_transform.basis
+
+	for f in faces:
+		var world_n: Vector3 = (b * f["normal"] as Vector3).normalized()
+		var d: float = world_n.dot(up)
+		if d > best_dot:
+			best_dot = d
+			best_val = int(f["value"])
+
+	var is_flat: bool = (best_dot >= 0.96)
+	return { "value": best_val, "is_flat": is_flat }

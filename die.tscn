@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://c10n10y2d10t1" path="res://d10.tscn" id="9_d10"]
 [ext_resource type="PackedScene" uid="uid://c12n12y2d12t1" path="res://d12.tscn" id="10_d12"]
 [ext_resource type="PackedScene" uid="uid://c20n20y2d20t1" path="res://d20.tscn" id="11_d20"]
+[ext_resource type="Script" uid="uid://s0m1a2b3c4d5" path="res://sum_label.gd" id="12_sum"]
 
 [sub_resource type="Environment" id="Environment_stadium"]
 background_mode = 1
@@ -163,5 +164,12 @@ shape = SubResource("BoxShape3D_6vino")
 offset_right = 40.0
 offset_bottom = 23.0
 script = ExtResource("3_muu1c")
+
+[node name="SumLabel" type="Label" parent="CanvasLayer" unique_id=2022568944]
+offset_top = 110.0
+offset_left = 10.0
+offset_right = 300.0
+offset_bottom = 160.0
+script = ExtResource("12_sum")
 
 [node name="StartMenu" parent="." unique_id=1347869088 instance=ExtResource("5_start")]

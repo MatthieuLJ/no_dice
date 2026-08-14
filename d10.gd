@@ -136,6 +136,8 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 
 		mesh_inst.mesh = st.commit()
 
+var current_mode: String = "low_0"
+
 func set_d10_mode(param: Variant) -> void:
 	var mode_str: String = "low_0"
 	if param is bool:
@@ -144,6 +146,8 @@ func set_d10_mode(param: Variant) -> void:
 	elif param is String:
 		mode_str = param
 		is_high_10 = (param == "high_10")
+
+	current_mode = mode_str
 
 	var tex_path: String = "res://textures/d10_texture.png"
 	if mode_str == "high_10":
@@ -214,3 +218,39 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if nudge_dir.is_zero_approx():
 			nudge_dir = Vector3.RIGHT
 		state.apply_torque_impulse(nudge_dir * 0.003)
+
+func get_upward_value() -> Dictionary:
+	var up: Vector3 = Vector3.UP
+	if ground:
+		up = ground.global_transform.basis.y.normalized()
+
+	var face_values: Array[int] = [0, 1, 2, 3, 4, 6, 5, 9, 8, 7]
+	if current_mode == "high_10":
+		face_values = [1, 2, 3, 4, 5, 7, 6, 10, 9, 8]
+	elif current_mode == "tens":
+		face_values = [0, 10, 20, 30, 40, 60, 50, 90, 80, 70]
+
+	var best_dot: float = -1.0
+	var best_val: int = face_values[0]
+	var b: Basis = global_transform.basis
+
+	for k_idx in range(KITES.size()):
+		var kite: Array = KITES[k_idx]
+		var vA: Vector3 = VERTICES[int(kite[0])]
+		var vB: Vector3 = VERTICES[int(kite[1])]
+		var vC: Vector3 = VERTICES[int(kite[2])]
+		var vD: Vector3 = VERTICES[int(kite[3])]
+
+		var center: Vector3 = (vA + vB + vC + vD) * 0.25
+		var n: Vector3 = (vB - vA).cross(vD - vA).normalized()
+		if n.dot(center) < 0:
+			n = -n
+
+		var world_n: Vector3 = (b * n).normalized()
+		var d: float = world_n.dot(up)
+		if d > best_dot:
+			best_dot = d
+			best_val = face_values[k_idx]
+
+	var is_flat: bool = (best_dot >= 0.96)
+	return { "value": best_val, "is_flat": is_flat }

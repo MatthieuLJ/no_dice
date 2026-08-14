@@ -126,9 +126,30 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if clamped_z != local_pos.z and signf(state.linear_velocity.z) == signf(local_pos.z):
 			state.linear_velocity.z = 0.0
 
+	# Emergency fallback recovery if die clips far out of arena
 	if local_pos.y < -2.0 or local_pos.length() > 10.0:
 		var reset_transform = state.transform
-		reset_transform.origin = ground.to_global(Vector3(0.2, 0.5, 0.2))
+		reset_transform.origin = ground.to_global(Vector3(0.0, 0.5, 0.0))
 		state.transform = reset_transform
 		state.linear_velocity = Vector3.ZERO
 		state.angular_velocity = Vector3.ZERO
+
+func get_upward_value() -> Dictionary:
+	var up: Vector3 = Vector3.UP
+	if ground:
+		up = ground.global_transform.basis.y.normalized()
+
+	var best_dot: float = -1.0
+	var best_idx: int = 0
+	var b: Basis = global_transform.basis
+
+	for i in range(VERTICES.size()):
+		var world_v: Vector3 = (b * VERTICES[i]).normalized()
+		var d: float = world_v.dot(up)
+		if d > best_dot:
+			best_dot = d
+			best_idx = i
+
+	var val: int = [4, 1, 2, 3][best_idx]
+	var is_flat: bool = (best_dot >= 0.96)
+	return { "value": val, "is_flat": is_flat }
