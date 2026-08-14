@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://d12.tscn" id="10_d12"]
 [ext_resource type="PackedScene" path="res://d20.tscn" id="11_d20"]
 [ext_resource type="Script" path="res://sum_label.gd" id="12_sum"]
+[ext_resource type="PackedScene" path="res://result_screen.tscn" id="13_result"]
 
 [sub_resource type="Environment" id="Environment_stadium"]
 background_mode = 1
@@ -173,3 +174,5 @@ offset_bottom = 160.0
 script = ExtResource("12_sum")
 
 [node name="StartMenu" parent="." unique_id=1347869088 instance=ExtResource("5_start")]
+
+[node name="ResultScreen" parent="." unique_id=1347869089 instance=ExtResource("13_result")]

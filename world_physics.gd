@@ -17,6 +17,9 @@ extends Node3D
 var simulated_gravity: Vector3 = Vector3(0, -9.8, 0)
 var shake_cooldown: float = 0.0
 var dice: Array[RigidBody3D] = []
+var has_shown_result_for_current_roll: bool = false
+
+@onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
 func _ready() -> void:
 	if d6: dice.append(d6)
@@ -30,7 +33,14 @@ func _ready() -> void:
 	if start_menu and start_menu.has_signal("menu_dismissed"):
 		start_menu.menu_dismissed.connect(_on_start_menu_dismissed)
 
+	if result_screen:
+		if result_screen.has_signal("roll_again_requested"):
+			result_screen.connect("roll_again_requested", _on_roll_again_requested)
+		if result_screen.has_signal("main_menu_requested"):
+			result_screen.connect("main_menu_requested", _on_main_menu_requested)
+
 func _on_start_menu_dismissed(param: Variant) -> void:
+	has_shown_result_for_current_roll = false
 	if param is Dictionary:
 		set_multi_dice_counts(param)
 	elif param is int:
@@ -196,6 +206,50 @@ func _physics_process(delta: float) -> void:
 		gravity_area.gravity_direction = target_gravity_dir.normalized()
 		gravity_area.gravity = 9.8
 		gravity_debugger.draw_gravity_vector(target_gravity_dir)
+
+	# 3. Check for at-rest state transition to trigger ResultScreen
+	_check_at_rest_transition()
+
+func _check_at_rest_transition() -> void:
+	var start_menu = get_node_or_null("StartMenu")
+	if start_menu and start_menu.visible:
+		return
+
+	var active_dice: Array[RigidBody3D] = []
+	var all_at_rest: bool = true
+
+	for d in dice:
+		if is_instance_valid(d) and d.visible and d.process_mode != PROCESS_MODE_DISABLED:
+			active_dice.append(d)
+			if not d.sleeping and (d.linear_velocity.length() > 0.03 or d.angular_velocity.length() > 0.03):
+				all_at_rest = false
+
+	if active_dice.is_empty():
+		return
+
+	if not all_at_rest:
+		# Reset flag when dice are actively moving
+		has_shown_result_for_current_roll = false
+		if result_screen and result_screen.visible:
+			result_screen.hide_result()
+	else:
+		# Dice are all at rest! Trigger result screen if not already shown
+		if not has_shown_result_for_current_roll:
+			has_shown_result_for_current_roll = true
+			if result_screen:
+				result_screen.show_result(active_dice)
+
+func _on_roll_again_requested() -> void:
+	has_shown_result_for_current_roll = false
+	_apply_strong_random_impulse()
+
+func _on_main_menu_requested() -> void:
+	has_shown_result_for_current_roll = false
+	var start_menu = get_node_or_null("StartMenu")
+	if start_menu and start_menu.has_method("show_menu"):
+		start_menu.call("show_menu")
+	elif start_menu:
+		start_menu.visible = true
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -1,0 +1,102 @@
+[gd_scene load_steps=8 format=3 uid="uid://b8k10u2x82y7"]
+
+[ext_resource type="Script" path="res://result_screen.gd" id="1_result"]
+[ext_resource type="Shader" path="res://shaders/screen_blur.gdshader" id="2_blur"]
+[ext_resource type="Script" path="res://histogram_drawer.gd" id="3_histo"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
+shader = ExtResource("2_blur")
+shader_parameter/blur_amount = 3.5
+shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glass"]
+bg_color = Color(0.03, 0.1, 0.05, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.8, 0.4, 0.6)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 12
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 38
+font_color = Color(0.2, 1.0, 0.4, 1)
+shadow_size = 6
+shadow_color = Color(0.0, 0.3, 0.1, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_stats"]
+font_size = 16
+font_color = Color(0.7, 0.95, 0.8, 1)
+
+[node name="ResultScreen" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_result")
+
+[node name="BlurRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_blur")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(500, 420)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_glass")
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
+layout_mode = 2
+text = "TOTAL SUM: 0"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="StatsLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
+layout_mode = 2
+text = "Rolled Sum: 0   |   Probability: 0%"
+label_settings = SubResource("LabelSettings_stats")
+horizontal_alignment = 1
+
+[node name="HistogramContainer" type="MarginContainer" parent="CenterContainer/PanelContainer/VBox"]
+custom_minimum_size = Vector2(460, 230)
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="HistogramDrawer" type="Control" parent="CenterContainer/PanelContainer/VBox/HistogramContainer"]
+layout_mode = 2
+script = ExtResource("3_histo")
+
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="RollAgainButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
+custom_minimum_size = Vector2(170, 46)
+layout_mode = 2
+text = "Roll Again"
+
+[node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
+custom_minimum_size = Vector2(170, 46)
+layout_mode = 2
+text = "Main Menu"

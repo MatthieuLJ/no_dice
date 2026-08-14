@@ -158,5 +158,12 @@ func dismiss_menu() -> void:
 	tween.finished.connect(func():
 		visible = false
 		menu_dismissed.emit(dice_counts)
-		queue_free()
 	)
+
+func show_menu() -> void:
+	visible = true
+	_is_active = true
+	if blur_rect:
+		blur_rect.modulate.a = 1.0
+	if menu_container:
+		menu_container.modulate.a = 1.0
