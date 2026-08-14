@@ -78,7 +78,7 @@ func _build_octahedron_mesh_and_collider() -> void:
 		# 8 Face UVs in 4x2 grid atlas
 		for f_idx in range(FACE_SPECS.size()):
 			var gx = f_idx % 4
-			var gy = f_idx / 4
+			var gy = int(floorf(float(f_idx) / 4.0))
 			var u0 = float(gx) * 0.25
 			var u1 = float(gx + 1) * 0.25
 			var v0 = float(gy) * 0.5
@@ -93,7 +93,6 @@ func _build_octahedron_mesh_and_collider() -> void:
 			var tri: Vector3i = spec["tri"]
 			var idx_top: int = spec["top"]
 			var idx_bl: int = spec["bl"]
-			var idx_br: int = spec["br"]
 
 			var vA = VERTICES[tri.x]
 			var vB = VERTICES[tri.y]

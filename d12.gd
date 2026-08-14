@@ -85,17 +85,15 @@ func _build_dodecahedron_mesh_and_collider() -> void:
 			mat.albedo_color = Color(0.6, 0.2, 0.8)
 		mat.roughness = 0.4
 		mat.metallic = 0.0
-		mat.specular = 0.5
+		mat.metallic_specular = 0.5
 		st.set_material(mat)
 
 		# 12 Pentagonal Faces (built from 3 triangles each: 0-1-2, 0-2-3, 0-3-4)
 		for p_idx in range(PENTAGONS.size()):
 			var gx = p_idx % 4
-			var gy = p_idx / 4
+			var gy = int(floorf(float(p_idx) / 4.0))
 			var u0 = float(gx) * 0.25
-			var u1 = float(gx + 1) * 0.25
 			var v0 = float(gy) * 0.3333
-			var v1 = float(gy + 1) * 0.3333
 
 			var cx = u0 + 0.125
 			var cy = v0 + 0.16667

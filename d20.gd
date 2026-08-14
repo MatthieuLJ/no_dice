@@ -69,7 +69,7 @@ func _build_icosahedron_mesh_and_collider() -> void:
 			mat.albedo_color = Color(0.2, 0.3, 0.8)
 		mat.roughness = 0.4
 		mat.metallic = 0.0
-		mat.specular = 0.5
+		mat.metallic_specular = 0.5
 		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 		st.set_material(mat)
 		mesh_inst.material_override = mat
@@ -77,7 +77,7 @@ func _build_icosahedron_mesh_and_collider() -> void:
 		# 20 Triangular Faces (5x4 grid in atlas)
 		for f_idx in range(FACES.size()):
 			var gx = f_idx % 5
-			var gy = f_idx / 5
+			var gy = int(floorf(float(f_idx) / 5.0))
 			var u0 = float(gx) * 0.20
 			var u1 = float(gx + 1) * 0.20
 			var v0 = float(gy) * 0.25

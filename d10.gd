@@ -80,14 +80,14 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 			mat.albedo_color = Color(0.1, 0.7, 0.3)
 		mat.roughness = 0.4
 		mat.metallic = 0.0
-		mat.specular = 0.5
+		mat.metallic_specular = 0.5
 		st.set_material(mat)
 		mesh_inst.material_override = mat
 
 		# 10 Kite Faces
 		for k_idx in range(KITES.size()):
 			var gx = k_idx % 5
-			var gy = k_idx / 5
+			var gy = int(floorf(float(k_idx) / 5.0))
 			var u0 = float(gx) * 0.2
 			var u1 = float(gx + 1) * 0.2
 			var v0 = float(gy) * 0.5
@@ -163,7 +163,7 @@ func set_d10_mode(param: Variant) -> void:
 				var mat = StandardMaterial3D.new()
 				mat.roughness = 0.4
 				mat.metallic = 0.0
-				mat.specular = 0.5
+				mat.metallic_specular = 0.5
 				mat.albedo_color = Color.WHITE
 				mesh_inst.material_override = mat
 			(mesh_inst.material_override as StandardMaterial3D).albedo_texture = tex

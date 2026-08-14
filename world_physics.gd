@@ -73,7 +73,7 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 			continue
 
 		for i in range(req_count):
-			var mode_param: Variant = d10_mode_str if type_key == "d10" else null
+			var mode_param: String = d10_mode_str if type_key == "d10" else ""
 			_spawn_die_instance(base_die, mode_param, spawn_idx)
 			spawn_idx += 1
 
@@ -88,7 +88,7 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 			_spawn_die_instance(d10, "low_0", spawn_idx)
 			spawn_idx += 1
 
-func _spawn_die_instance(base_die: RigidBody3D, mode_param: Variant, spawn_idx: int) -> RigidBody3D:
+func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: int) -> RigidBody3D:
 	var die_to_use: RigidBody3D = base_die
 	if base_die.get_parent() != null and base_die.visible:
 		die_to_use = base_die.duplicate() as RigidBody3D
@@ -97,11 +97,11 @@ func _spawn_die_instance(base_die: RigidBody3D, mode_param: Variant, spawn_idx: 
 	die_to_use.visible = true
 	die_to_use.process_mode = PROCESS_MODE_INHERIT
 
-	if mode_param != null and die_to_use.has_method("set_d10_mode"):
+	if not mode_param.is_empty() and die_to_use.has_method("set_d10_mode"):
 		die_to_use.call("set_d10_mode", mode_param)
 
-	var col_x = (spawn_idx % 5) * 0.12 - 0.24
-	var row_z = (spawn_idx / 5) * 0.12 - 0.24
+	var col_x = float(spawn_idx % 5) * 0.12 - 0.24
+	var row_z = floorf(float(spawn_idx) / 5.0) * 0.12 - 0.24
 	var spawn_y = 0.15 + (randf() * 0.15)
 
 	die_to_use.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
