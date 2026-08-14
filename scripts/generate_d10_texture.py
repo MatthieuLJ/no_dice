@@ -1,13 +1,13 @@
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-def generate_atlas(face_nums, filename):
+def generate_atlas(face_nums, filename, font_size=130, bg_color=(18, 130, 70, 255), border_color=(60, 210, 130, 255), shadow_color=(5, 30, 15, 230)):
     width, height = 2048, 1024
     cell_w, cell_h = 409, 512
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 
     try:
-        font = ImageFont.truetype("arial.ttf", 130)
+        font = ImageFont.truetype("arial.ttf", font_size)
     except IOError:
         font = ImageFont.load_default()
 
@@ -15,7 +15,7 @@ def generate_atlas(face_nums, filename):
         gx = idx % 5
         gy = idx // 5
 
-        face_img = Image.new("RGBA", (cell_w, cell_h), (18, 130, 70, 255))
+        face_img = Image.new("RGBA", (cell_w, cell_h), bg_color)
         draw = ImageDraw.Draw(face_img)
 
         # Exact calculated 3D kite shape (Widest point at 80.9% height from top)
@@ -27,17 +27,17 @@ def generate_atlas(face_nums, filename):
 
         # Shadow kite
         shadow_pts = [(x + 3, y + 3) for x, y in kite_pts]
-        draw.polygon(shadow_pts, fill=(5, 30, 15, 200))
+        draw.polygon(shadow_pts, fill=shadow_color)
 
-        # Base kite face (Deep emerald green for D10)
-        draw.polygon(kite_pts, fill=(18, 130, 70, 255))
+        # Base kite face
+        draw.polygon(kite_pts, fill=bg_color)
 
         # Inner border line
         inner_top = (204, 50)
         inner_right = (345, 400)
         inner_bot = (204, 475)
         inner_left = (63, 400)
-        draw.polygon([inner_top, inner_right, inner_bot, inner_left], outline=(60, 210, 130, 255), width=4)
+        draw.polygon([inner_top, inner_right, inner_bot, inner_left], outline=border_color, width=4)
 
         # Create dedicated text image layer for cell
         txt_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
@@ -50,7 +50,7 @@ def generate_atlas(face_nums, filename):
         tx = (cell_w - tw) / 2 - bbox[0]
         ty = 310 - (th / 2) - bbox[1]
 
-        txt_draw.text((tx + 3, ty + 3), num_str, font=font, fill=(5, 30, 15, 230))
+        txt_draw.text((tx + 3, ty + 3), num_str, font=font, fill=shadow_color)
         txt_draw.text((tx, ty), num_str, font=font, fill=(255, 255, 255, 255))
 
         if gy == 1:
@@ -68,13 +68,24 @@ def generate_atlas(face_nums, filename):
     print(f"D10 Texture generated successfully at {out_path}")
 
 def create_d10_textures():
-    # 1. Standard D10 ("Low 0"): 0..9 (opposite pairs sum = 9)
+    # 1. Standard D10 ("Low 0"): 0..9 (emerald green: 18, 130, 70)
     nums_low = ["0", "1", "2", "3", "4", "6.", "5", "9.", "8", "7"]
-    generate_atlas(nums_low, "d10_texture.png")
+    generate_atlas(nums_low, "d10_texture.png", font_size=130)
 
-    # 2. Alternate D10 ("High 10"): 1..10 (opposite pairs sum = 11: 1+10, 2+9, 3+8, 4+7, 5+6)
+    # 2. Alternate D10 ("High 10"): 1..10 (emerald green: 18, 130, 70)
     nums_high = ["1", "2", "3", "4", "5", "7", "6.", "10", "9.", "8"]
-    generate_atlas(nums_high, "d10_high_texture.png")
+    generate_atlas(nums_high, "d10_high_texture.png", font_size=120)
+
+    # 3. Tens D10 ("Tens 00"): 00..90 (dark forest green: 8, 70, 38)
+    nums_tens = ["00", "10", "20", "30", "40", "60", "50", "90", "80", "70"]
+    generate_atlas(
+        nums_tens,
+        "d10_tens_texture.png",
+        font_size=110,
+        bg_color=(8, 70, 38, 255),
+        border_color=(35, 145, 80, 255),
+        shadow_color=(2, 18, 10, 230)
+    )
 
 if __name__ == "__main__":
     create_d10_textures()
