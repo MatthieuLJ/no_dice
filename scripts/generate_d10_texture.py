@@ -1,5 +1,5 @@
 import os
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 def generate_atlas(face_nums, filename):
     width, height = 2048, 1024
@@ -39,6 +39,10 @@ def generate_atlas(face_nums, filename):
         inner_left = (63, 400)
         draw.polygon([inner_top, inner_right, inner_bot, inner_left], outline=(60, 210, 130, 255), width=4)
 
+        # Create dedicated text image layer for cell
+        txt_img = Image.new("RGBA", (cell_w, cell_h), (0, 0, 0, 0))
+        txt_draw = ImageDraw.Draw(txt_img)
+
         # Draw centered face number at optical kite center (Y = 310)
         bbox = font.getbbox(num_str)
         tw = bbox[2] - bbox[0]
@@ -46,8 +50,14 @@ def generate_atlas(face_nums, filename):
         tx = (cell_w - tw) / 2 - bbox[0]
         ty = 310 - (th / 2) - bbox[1]
 
-        draw.text((tx + 3, ty + 3), num_str, font=font, fill=(5, 30, 15, 230))
-        draw.text((tx, ty), num_str, font=font, fill=(255, 255, 255, 255))
+        txt_draw.text((tx + 3, ty + 3), num_str, font=font, fill=(5, 30, 15, 230))
+        txt_draw.text((tx, ty), num_str, font=font, fill=(255, 255, 255, 255))
+
+        if gy == 1:
+            # Horizontally mirror the number text for bottom-row kite faces so it renders un-mirrored on 3D die
+            txt_img = ImageOps.mirror(txt_img)
+
+        face_img.alpha_composite(txt_img)
 
         # Paste cell into atlas
         image.alpha_composite(face_img, (gx * cell_w, gy * cell_h))
