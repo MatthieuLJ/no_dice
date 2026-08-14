@@ -9,6 +9,7 @@ var dice_counts: Dictionary = {
 	"d10": 0,
 	"d12": 0,
 	"d20": 0,
+	"d100": 0,
 	"d10_mode": "low_0"
 }
 
@@ -44,6 +45,10 @@ var is_d10_high_10: bool = false
 @onready var minus_d20: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD20/MinusButton")
 @onready var plus_d20: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD20/PlusButton")
 
+@onready var label_d100: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/CountLabel")
+@onready var minus_d100: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/MinusButton")
+@onready var plus_d100: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/PlusButton")
+
 var _is_active: bool = true
 var _blink_timer: float = 0.0
 
@@ -58,6 +63,7 @@ func _ready() -> void:
 	_connect_row("d10", minus_d10, plus_d10)
 	_connect_row("d12", minus_d12, plus_d12)
 	_connect_row("d20", minus_d20, plus_d20)
+	_connect_row("d100", minus_d100, plus_d100)
 
 	if d10_mode_button:
 		d10_mode_button.pressed.connect(_on_d10_mode_pressed)
@@ -87,12 +93,13 @@ func _update_all_displays() -> void:
 	if label_d10: label_d10.text = str(dice_counts.get("d10", 0))
 	if label_d12: label_d12.text = str(dice_counts.get("d12", 0))
 	if label_d20: label_d20.text = str(dice_counts.get("d20", 0))
+	if label_d100: label_d100.text = str(dice_counts.get("d100", 0))
 	if d10_mode_button:
 		d10_mode_button.text = "High 10" if is_d10_high_10 else "Low 0"
 
 func get_total_count() -> int:
 	var total: int = 0
-	for key in ["d4", "d6", "d8", "d10", "d12", "d20"]:
+	for key in ["d4", "d6", "d8", "d10", "d12", "d20", "d100"]:
 		total += int(dice_counts.get(key, 0))
 	return total
 
@@ -121,7 +128,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			minus_d10, plus_d10,
 			d10_mode_button,
 			minus_d12, plus_d12,
-			minus_d20, plus_d20
+			minus_d20, plus_d20,
+			minus_d100, plus_d100
 		]
 		for btn in buttons:
 			if btn and btn.get_global_rect().has_point(mouse_pos):

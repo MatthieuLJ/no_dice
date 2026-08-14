@@ -136,9 +136,21 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 
 		mesh_inst.mesh = st.commit()
 
-func set_d10_mode(high_10: bool) -> void:
-	is_high_10 = high_10
-	var tex_path = "res://textures/d10_high_texture.png" if is_high_10 else "res://textures/d10_texture.png"
+func set_d10_mode(param: Variant) -> void:
+	var mode_str: String = "low_0"
+	if param is bool:
+		is_high_10 = param
+		mode_str = "high_10" if param else "low_0"
+	elif param is String:
+		mode_str = param
+		is_high_10 = (param == "high_10")
+
+	var tex_path: String = "res://textures/d10_texture.png"
+	if mode_str == "high_10":
+		tex_path = "res://textures/d10_high_texture.png"
+	elif mode_str == "tens":
+		tex_path = "res://textures/d10_tens_texture.png"
+
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
 		var tex = load(tex_path)

@@ -54,49 +54,60 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 		"d20": d20
 	}
 
-	var is_d10_high: bool = (counts.get("d10_mode", "low_0") == "high_10")
+	var d10_mode_str: String = counts.get("d10_mode", "low_0")
+	var d100_count: int = int(counts.get("d100", 0))
+
+	# Hide template base dice by default
+	for base in [d4, d6, d8, d10, d12, d20]:
+		if is_instance_valid(base):
+			base.visible = false
+			base.process_mode = PROCESS_MODE_DISABLED
 
 	var spawn_idx: int = 0
+
+	# Spawn standard dice (D4, D6, D8, D10, D12, D20)
 	for type_key in ["d4", "d6", "d8", "d10", "d12", "d20"]:
 		var req_count: int = int(counts.get(type_key, 0))
 		var base_die = dice_map.get(type_key) as RigidBody3D
 		if not is_instance_valid(base_die):
 			continue
 
-		if type_key == "d10" and base_die.has_method("set_d10_mode"):
-			base_die.call("set_d10_mode", is_d10_high)
-
-		if req_count > 0:
-			base_die.visible = true
-			base_die.process_mode = PROCESS_MODE_INHERIT
-			dice.append(base_die)
-			
-			var col_x = (spawn_idx % 5) * 0.12 - 0.24
-			var row_z = (spawn_idx / 5) * 0.12 - 0.24
-			var spawn_y = 0.15 + (randf() * 0.15)
-
-			base_die.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
-			base_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
+		for i in range(req_count):
+			var mode_param: Variant = d10_mode_str if type_key == "d10" else null
+			_spawn_die_instance(base_die, mode_param, spawn_idx)
 			spawn_idx += 1
 
-			for i in range(1, req_count):
-				var extra_die = base_die.duplicate() as RigidBody3D
-				if type_key == "d10" and extra_die.has_method("set_d10_mode"):
-					extra_die.call("set_d10_mode", is_d10_high)
-				add_child(extra_die)
-				extra_die.visible = true
-				
-				col_x = (spawn_idx % 5) * 0.12 - 0.24
-				row_z = (spawn_idx / 5) * 0.12 - 0.24
-				spawn_y = 0.15 + (randf() * 0.15)
+	# Spawn D100 dice (pair of D10 Tens + D10 Low 0)
+	if d100_count > 0 and is_instance_valid(d10):
+		for i in range(d100_count):
+			# 1. D10 Tens die (00..90)
+			_spawn_die_instance(d10, "tens", spawn_idx)
+			spawn_idx += 1
 
-				extra_die.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
-				extra_die.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
-				dice.append(extra_die)
-				spawn_idx += 1
-		else:
-			base_die.visible = false
-			base_die.process_mode = PROCESS_MODE_DISABLED
+			# 2. D10 Units die (0..9)
+			_spawn_die_instance(d10, "low_0", spawn_idx)
+			spawn_idx += 1
+
+func _spawn_die_instance(base_die: RigidBody3D, mode_param: Variant, spawn_idx: int) -> RigidBody3D:
+	var die_to_use: RigidBody3D = base_die
+	if base_die.get_parent() != null and base_die.visible:
+		die_to_use = base_die.duplicate() as RigidBody3D
+		add_child(die_to_use)
+
+	die_to_use.visible = true
+	die_to_use.process_mode = PROCESS_MODE_INHERIT
+
+	if mode_param != null and die_to_use.has_method("set_d10_mode"):
+		die_to_use.call("set_d10_mode", mode_param)
+
+	var col_x = (spawn_idx % 5) * 0.12 - 0.24
+	var row_z = (spawn_idx / 5) * 0.12 - 0.24
+	var spawn_y = 0.15 + (randf() * 0.15)
+
+	die_to_use.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
+	die_to_use.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
+	dice.append(die_to_use)
+	return die_to_use
 
 func set_dice_count(count: int) -> void:
 	count = max(1, count)
