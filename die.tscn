@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://c8n8y2d8t1a1" path="res://d8.tscn" id="8_d8"]
 [ext_resource type="PackedScene" uid="uid://c10n10y2d10t1" path="res://d10.tscn" id="9_d10"]
 [ext_resource type="PackedScene" uid="uid://c12n12y2d12t1" path="res://d12.tscn" id="10_d12"]
+[ext_resource type="PackedScene" uid="uid://c20n20y2d20t1" path="res://d20.tscn" id="11_d20"]
 
 [sub_resource type="Environment" id="Environment_stadium"]
 background_mode = 1
@@ -62,6 +63,8 @@ script = ExtResource("1_qmayl")
 [node name="D10" parent="." unique_id=803693883 instance=ExtResource("9_d10")]
 
 [node name="D12" parent="." unique_id=981273474 instance=ExtResource("10_d12")]
+
+[node name="D20" parent="." unique_id=981273478 instance=ExtResource("11_d20")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=987654321]
 environment = SubResource("Environment_stadium")

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c20n20y2d20t1"]
+
+[ext_resource type="Script" uid="uid://dm0d20d20s20xl" path="res://d20.gd" id="1_d20"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
+friction = 0.5
+absorbent = true
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_d20"]
+
+[node name="D20" type="RigidBody3D" unique_id=981273475]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.5, 0.0)
+mass = 0.5
+physics_material_override = SubResource("PhysicsMaterial_gxo0y")
+can_sleep = true
+continuous_cd = true
+linear_damp = 0.5
+angular_damp = 1.0
+script = ExtResource("1_d20")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=981273476]
+shape = SubResource("ConvexPolygonShape3D_d20")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=981273477]
