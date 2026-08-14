@@ -6,8 +6,6 @@
 friction = 0.5
 absorbent = true
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_d20"]
-
 [node name="D20" type="RigidBody3D" unique_id=981273475]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.5, 0.0)
 mass = 0.5
@@ -19,6 +17,5 @@ angular_damp = 1.0
 script = ExtResource("1_d20")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=981273476]
-shape = SubResource("ConvexPolygonShape3D_d20")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=981273477]
