@@ -18,13 +18,13 @@ border_width_right = 0
 border_width_bottom = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 48
+font_size = 56
 font_color = Color(0.2, 1, 0.4, 1)
 shadow_size = 8
 shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 22
+font_size = 26
 font_color = Color(0.3, 1, 0.5, 1)
 shadow_size = 4
 shadow_color = Color(0, 0.4, 0.1, 0.8)
@@ -49,7 +49,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(500, 420)
+custom_minimum_size = Vector2(640, 520)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_glass")
 
@@ -71,7 +71,7 @@ label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 
 [node name="HistogramContainer" type="MarginContainer" parent="CenterContainer/PanelContainer/VBox"]
-custom_minimum_size = Vector2(460, 230)
+custom_minimum_size = Vector2(580, 300)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
@@ -88,11 +88,13 @@ theme_override_constants/separation = 24
 alignment = 1
 
 [node name="RollAgainButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(170, 46)
+custom_minimum_size = Vector2(210, 54)
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "Roll Again"
 
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(170, 46)
+custom_minimum_size = Vector2(210, 54)
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "Main Menu"
