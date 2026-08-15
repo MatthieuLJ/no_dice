@@ -18,19 +18,19 @@ border_width_right = 0
 border_width_bottom = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 56
+font_size = 40
 font_color = Color(0.2, 1, 0.4, 1)
 shadow_size = 8
 shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 26
+font_size = 40
 font_color = Color(0.3, 1, 0.5, 1)
 shadow_size = 4
 shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_counts"]
-font_size = 24
+font_size = 40
 font_color = Color(1, 0.85, 0.2, 1)
 shadow_size = 4
 shadow_color = Color(0.4, 0.3, 0, 0.8)
@@ -55,13 +55,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(640, 520)
+custom_minimum_size = Vector2(800, 680)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_glass")
 
 [node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 18
 alignment = 1
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
@@ -83,7 +83,7 @@ label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 
 [node name="HistogramContainer" type="MarginContainer" parent="CenterContainer/PanelContainer/VBox"]
-custom_minimum_size = Vector2(580, 300)
+custom_minimum_size = Vector2(740, 360)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
@@ -100,20 +100,20 @@ theme_override_constants/separation = 24
 alignment = 1
 
 [node name="RollAgainButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(210, 54)
+custom_minimum_size = Vector2(250, 64)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "Roll Again"
 
 [node name="LockFlatButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
 visible = false
-custom_minimum_size = Vector2(210, 54)
+custom_minimum_size = Vector2(250, 64)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "Lock Flat & Reroll"
 
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(210, 54)
+custom_minimum_size = Vector2(250, 64)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 30
 text = "Main Menu"
