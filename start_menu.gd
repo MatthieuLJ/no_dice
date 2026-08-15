@@ -82,8 +82,16 @@ func _connect_row(type_key: String, minus_btn: Button, plus_btn: Button) -> void
 
 func _on_count_change(type_key: String, delta: int) -> void:
 	var current: int = int(dice_counts.get(type_key, 0))
-	var new_val: int = max(0, min(10, current + delta))
-	dice_counts[type_key] = new_val
+	if delta > 0:
+		var current_total: int = get_total_count()
+		if current_total >= 30:
+			return
+		var new_val: int = min(30 - (current_total - current), current + delta)
+		dice_counts[type_key] = new_val
+	else:
+		var new_val: int = max(0, current + delta)
+		dice_counts[type_key] = new_val
+
 	_update_all_displays()
 
 func _update_all_displays() -> void:
@@ -96,6 +104,29 @@ func _update_all_displays() -> void:
 	if label_d100: label_d100.text = str(dice_counts.get("d100", 0))
 	if d10_mode_button:
 		d10_mode_button.text = "High 10" if is_d10_high_10 else "Low 0"
+
+	var total: int = get_total_count()
+	var at_max: bool = (total >= 30)
+
+	var plus_buttons: Array = [plus_d4, plus_d6, plus_d8, plus_d10, plus_d12, plus_d20, plus_d100]
+	for btn in plus_buttons:
+		if btn:
+			btn.disabled = at_max
+
+	var minus_map: Dictionary = {
+		"d4": minus_d4, "d6": minus_d6, "d8": minus_d8,
+		"d10": minus_d10, "d12": minus_d12, "d20": minus_d20, "d100": minus_d100
+	}
+	for key in minus_map.keys():
+		var btn = minus_map[key] as Button
+		if btn:
+			btn.disabled = (int(dice_counts.get(key, 0)) <= 0)
+
+	if is_instance_valid(blink_label):
+		if at_max:
+			blink_label.text = "TAP TO ROLL (MAX 30 DICE)"
+		else:
+			blink_label.text = "PRESS SPACE OR TAP TO ROLL"
 
 func get_total_count() -> int:
 	var total: int = 0
