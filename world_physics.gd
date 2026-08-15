@@ -25,6 +25,11 @@ var has_left_rest: bool = false
 var halo_material: StandardMaterial3D = null
 var last_pick_debug_info: String = "None"
 
+var dragging_die: RigidBody3D = null
+var drag_start_pos: Vector2 = Vector2.ZERO
+var is_drag_active: bool = false
+var drag_threshold: float = 8.0
+
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
 func _get_halo_material() -> StandardMaterial3D:
@@ -66,6 +71,29 @@ func _clear_all_user_locks() -> void:
 	for d in dice:
 		if is_instance_valid(d):
 			_set_die_user_lock(d, false)
+
+func _slide_die_to_position(die: RigidBody3D, target_3d: Vector3) -> void:
+	var pos_y = maxf(0.05, die.position.y)
+	var clamped_x = clampf(target_3d.x, -0.75, 0.75)
+	var clamped_z = clampf(target_3d.z, -0.75, 0.75)
+	var target_pos = Vector3(clamped_x, pos_y, clamped_z)
+
+	# Ensure dragged die does NOT overlap or pass through locked dice
+	for other in dice:
+		if is_instance_valid(other) and other != die:
+			if bool(other.get_meta("is_user_locked", false)) or other.freeze:
+				var diff = target_pos - other.position
+				diff.y = 0.0
+				var min_dist = 0.11 # minimum spacing between 0.1m die centers
+				if diff.length() < min_dist:
+					if diff.is_zero_approx():
+						diff = Vector3(0.01, 0.0, 0.01)
+					target_pos = other.position + diff.normalized() * min_dist
+					target_pos.y = pos_y
+
+	die.global_position = target_pos
+	die.linear_velocity = Vector3.ZERO
+	die.angular_velocity = Vector3.ZERO
 
 func _ready() -> void:
 	if d6: dice.append(d6)
@@ -367,23 +395,25 @@ func _unhandled_input(event: InputEvent) -> void:
 	var is_menu_open = start_menu and start_menu.visible
 	var is_result_open = result_screen and result_screen.visible
 
-	# --- 3D RAYCAST DIE SELECTION (LOCK / UNLOCK TOGGLE) ---
+	# --- 3D RAYCAST DIE SELECTION & GROUND DRAGGING ---
 	if not is_menu_open and not is_result_open:
-		var click_pos = Vector2.ZERO
-		var is_click = false
+
+		# 1. MOUSE / TOUCH PRESS DOWN -> Pick Die
+		var is_press = false
+		var press_pos = Vector2.ZERO
 
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			click_pos = event.position
-			is_click = true
+			press_pos = event.position
+			is_press = true
 		elif event is InputEventScreenTouch and event.pressed:
-			click_pos = event.position
-			is_click = true
+			press_pos = event.position
+			is_press = true
 
-		if is_click:
+		if is_press:
 			var camera = get_viewport().get_camera_3d()
 			if camera:
-				var from = camera.project_ray_origin(click_pos)
-				var to = from + camera.project_ray_normal(click_pos) * 100.0
+				var from = camera.project_ray_origin(press_pos)
+				var to = from + camera.project_ray_normal(press_pos) * 100.0
 				var space_state = get_world_3d().direct_space_state
 				var query = PhysicsRayQueryParameters3D.create(from, to)
 
@@ -403,18 +433,68 @@ func _unhandled_input(event: InputEvent) -> void:
 						hit_info_str = "Hit Die: %s" % collider.name
 						break
 					else:
-						# Exclude non-die static/area colliders (like Enclosure/Ground or Roof) and continue raycasting
 						if "rid" in result:
 							exclude_list.append(result["rid"] as RID)
 						hit_info_str = "Bypassed: %s" % collider.name
 
-				print("[DICE LOCK DEBUG] Tap at %s -> %s" % [click_pos, hit_info_str])
 				last_pick_debug_info = hit_info_str
 
 				if hit_die:
-					_toggle_die_user_lock(hit_die)
+					dragging_die = hit_die
+					drag_start_pos = press_pos
+					is_drag_active = false
 					get_viewport().set_input_as_handled()
 					return
+
+		# 2. MOUSE MOTION / SCREEN DRAG -> Slide Die across floor
+		if dragging_die and is_instance_valid(dragging_die):
+			var motion_pos = Vector2.ZERO
+			var has_motion = false
+
+			if event is InputEventMouseMotion:
+				motion_pos = event.position
+				has_motion = true
+			elif event is InputEventScreenDrag:
+				motion_pos = event.position
+				has_motion = true
+
+			if has_motion:
+				if not is_drag_active and (motion_pos - drag_start_pos).length() >= drag_threshold:
+					is_drag_active = true
+
+				if is_drag_active:
+					var camera = get_viewport().get_camera_3d()
+					if camera:
+						var ray_origin = camera.project_ray_origin(motion_pos)
+						var ray_dir = camera.project_ray_normal(motion_pos)
+						if absf(ray_dir.y) > 0.0001:
+							var ground_y = maxf(0.05, dragging_die.position.y)
+							var t = (ground_y - ray_origin.y) / ray_dir.y
+							var target_pos = ray_origin + ray_dir * t
+							_slide_die_to_position(dragging_die, target_pos)
+							last_pick_debug_info = "Dragging %s" % dragging_die.name
+							get_viewport().set_input_as_handled()
+							return
+
+		# 3. MOUSE / TOUCH RELEASE -> Finish Drag or Quick Tap Toggle
+		var is_release = false
+		if event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			is_release = true
+		elif event is InputEventScreenTouch and not event.pressed:
+			is_release = true
+
+		if is_release and dragging_die and is_instance_valid(dragging_die):
+			if not is_drag_active:
+				_toggle_die_user_lock(dragging_die)
+			else:
+				if not bool(dragging_die.get_meta("is_user_locked", false)):
+					dragging_die.linear_velocity = Vector3.ZERO
+					dragging_die.angular_velocity = Vector3.ZERO
+
+			dragging_die = null
+			is_drag_active = false
+			get_viewport().set_input_as_handled()
+			return
 
 	if event is InputEventKey and event.pressed and not event.echo:
 
