@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="No_Dice"
+config/name="No Dice"
 run/main_scene="uid://7y1gcfc1k42k"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
