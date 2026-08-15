@@ -22,8 +22,39 @@ var at_rest_settle_timer: float = 0.0
 var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
 var has_left_rest: bool = false
+var halo_material: StandardMaterial3D = null
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
+
+func _get_halo_material() -> StandardMaterial3D:
+	if not halo_material:
+		halo_material = StandardMaterial3D.new()
+		halo_material.cull_mode = BaseMaterial3D.CULL_FRONT
+		halo_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		halo_material.albedo_color = Color(1.0, 0.85, 0.0, 1.0)
+		halo_material.grow = true
+		halo_material.grow_amount = 0.008
+	return halo_material
+
+func _toggle_die_user_lock(die: RigidBody3D) -> void:
+	var is_locked: bool = bool(die.get_meta("is_user_locked", false))
+	_set_die_user_lock(die, not is_locked)
+
+func _set_die_user_lock(die: RigidBody3D, locked: bool) -> void:
+	die.set_meta("is_user_locked", locked)
+	die.freeze = locked
+	if locked:
+		die.linear_velocity = Vector3.ZERO
+		die.angular_velocity = Vector3.ZERO
+
+	var mesh_inst = die.get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh_inst:
+		mesh_inst.material_overlay = _get_halo_material() if locked else null
+
+func _clear_all_user_locks() -> void:
+	for d in dice:
+		if is_instance_valid(d):
+			_set_die_user_lock(d, false)
 
 func _ready() -> void:
 	if d6: dice.append(d6)
@@ -46,6 +77,7 @@ func _ready() -> void:
 func _on_start_menu_dismissed(param: Variant) -> void:
 	if result_screen and result_screen.has_method("hide_result"):
 		result_screen.hide_result()
+	_clear_all_user_locks()
 	_unlock_world()
 	has_shown_result_for_current_roll = false
 	has_left_rest = true
@@ -178,7 +210,8 @@ func _unlock_world() -> void:
 	at_rest_settle_timer = 0.0
 	for d in dice:
 		if is_instance_valid(d):
-			d.freeze = false
+			var user_locked = bool(d.get_meta("is_user_locked", false))
+			d.freeze = user_locked
 
 func _physics_process(delta: float) -> void:
 	if result_screen and result_screen.visible:
@@ -218,6 +251,8 @@ func _physics_process(delta: float) -> void:
 			)
 			for d in dice:
 				if is_instance_valid(d):
+					if bool(d.get_meta("is_user_locked", false)):
+						continue
 					d.apply_central_impulse(mapped_shake * (shake_multiplier * 0.05))
 					var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.02
 					d.apply_torque_impulse(random_spin)
@@ -296,6 +331,7 @@ func _on_roll_again_requested() -> void:
 	roll_grace_timer = 0.0
 
 func _on_main_menu_requested() -> void:
+	_clear_all_user_locks()
 	_unlock_world()
 	has_shown_result_for_current_roll = false
 	has_left_rest = false
@@ -315,6 +351,37 @@ func _unhandled_input(event: InputEvent) -> void:
 				_on_roll_again_requested()
 				get_viewport().set_input_as_handled()
 		return
+
+	var start_menu = get_node_or_null("StartMenu")
+	var is_menu_open = start_menu and start_menu.visible
+	var is_result_open = result_screen and result_screen.visible
+
+	# --- 3D RAYCAST DIE SELECTION (LOCK / UNLOCK TOGGLE) ---
+	if not is_menu_open and not is_result_open:
+		var click_pos = Vector2.ZERO
+		var is_click = false
+
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			click_pos = event.position
+			is_click = true
+		elif event is InputEventScreenTouch and event.pressed:
+			click_pos = event.position
+			is_click = true
+
+		if is_click:
+			var camera = get_viewport().get_camera_3d()
+			if camera:
+				var from = camera.project_ray_origin(click_pos)
+				var to = from + camera.project_ray_normal(click_pos) * 100.0
+				var space_state = get_world_3d().direct_space_state
+				var query = PhysicsRayQueryParameters3D.create(from, to)
+				var result = space_state.intersect_ray(query)
+				if result and result.has("collider"):
+					var collider = result["collider"] as RigidBody3D
+					if collider in dice:
+						_toggle_die_user_lock(collider)
+						get_viewport().set_input_as_handled()
+						return
 
 	if event is InputEventKey and event.pressed and not event.echo:
 
@@ -348,6 +415,8 @@ func _apply_strong_random_impulse() -> void:
 	for d in dice:
 		if not is_instance_valid(d):
 			continue
+		if bool(d.get_meta("is_user_locked", false)):
+			continue
 		var horiz_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
 		if horiz_dir.is_zero_approx():
 			horiz_dir = Vector3.FORWARD
@@ -367,6 +436,8 @@ func _apply_randomized_jerk(base_direction: Vector3) -> void:
 	for d in dice:
 		if not is_instance_valid(d):
 			continue
+		if bool(d.get_meta("is_user_locked", false)):
+			continue
 		var random_jerk = base_direction * randf_range(0.8, 1.2) * (shake_multiplier * 0.1)
 		random_jerk.y += randf_range(0.3, 0.6) * (shake_multiplier * 0.1)
 
@@ -382,6 +453,9 @@ func _reset_die() -> void:
 	for i in range(dice.size()):
 		var d = dice[i]
 		if is_instance_valid(d):
+			if bool(d.get_meta("is_user_locked", false)):
+				continue
 			d.global_position = Vector3(randf_range(-0.2, 0.2), 0.5 + (i * 0.12), randf_range(-0.2, 0.2))
 			d.linear_velocity = Vector3.ZERO
 			d.angular_velocity = Vector3.ZERO
+
