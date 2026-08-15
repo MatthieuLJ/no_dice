@@ -21,6 +21,7 @@ var roll_grace_timer: float = 0.0
 var at_rest_settle_timer: float = 0.0
 var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
+var has_left_rest: bool = false
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
@@ -47,6 +48,7 @@ func _on_start_menu_dismissed(param: Variant) -> void:
 		result_screen.hide_result()
 	_unlock_world()
 	has_shown_result_for_current_roll = false
+	has_left_rest = true
 	roll_grace_timer = 0.6
 	at_rest_settle_timer = 0.0
 	if param is Dictionary:
@@ -269,15 +271,16 @@ func _check_at_rest_transition(delta: float) -> void:
 		return
 
 	if not all_at_rest:
-		# Reset timer and flag when dice are actively moving
+		# Dice are actively moving! Mark that they have left rest state
+		has_left_rest = true
 		at_rest_settle_timer = 0.0
 		if not (result_screen and result_screen.visible):
 			has_shown_result_for_current_roll = false
 			if result_screen and result_screen.visible:
 				result_screen.hide_result()
 	else:
-		# Dice are all at rest! Wait at_rest_delay (1s) before locking world and showing result screen
-		if not has_shown_result_for_current_roll:
+		# Dice are all at rest. Only trigger result screen if they have moved (has_left_rest) and haven't shown result yet
+		if has_left_rest and not has_shown_result_for_current_roll:
 			at_rest_settle_timer += delta
 			if at_rest_settle_timer >= at_rest_delay:
 				has_shown_result_for_current_roll = true
@@ -288,11 +291,14 @@ func _check_at_rest_transition(delta: float) -> void:
 func _on_roll_again_requested() -> void:
 	_unlock_world()
 	has_shown_result_for_current_roll = false
-	_apply_strong_random_impulse()
+	has_left_rest = false
+	at_rest_settle_timer = 0.0
+	roll_grace_timer = 0.0
 
 func _on_main_menu_requested() -> void:
 	_unlock_world()
 	has_shown_result_for_current_roll = false
+	has_left_rest = false
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.has_method("show_menu"):
 		start_menu.call("show_menu")
@@ -337,6 +343,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _apply_strong_random_impulse() -> void:
 	_unlock_world()
+	has_left_rest = true
 	roll_grace_timer = 0.6
 	for d in dice:
 		if not is_instance_valid(d):
@@ -355,6 +362,7 @@ func _apply_strong_random_impulse() -> void:
 
 func _apply_randomized_jerk(base_direction: Vector3) -> void:
 	_unlock_world()
+	has_left_rest = true
 	roll_grace_timer = 0.3
 	for d in dice:
 		if not is_instance_valid(d):
@@ -369,6 +377,7 @@ func _apply_randomized_jerk(base_direction: Vector3) -> void:
 
 func _reset_die() -> void:
 	_unlock_world()
+	has_left_rest = true
 	roll_grace_timer = 0.6
 	for i in range(dice.size()):
 		var d = dice[i]
