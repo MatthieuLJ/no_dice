@@ -6,6 +6,7 @@ signal lock_flat_and_reroll_requested
 
 @onready var blur_rect: ColorRect = $BlurRect
 @onready var title_label: Label = $CenterContainer/PanelContainer/VBox/TitleLabel
+@onready var counts_label: Label = get_node_or_null("CenterContainer/PanelContainer/VBox/CountsLabel")
 @onready var stats_label: Label = $CenterContainer/PanelContainer/VBox/StatsLabel
 @onready var histogram_draw: Control = $CenterContainer/PanelContainer/VBox/HistogramContainer/HistogramDrawer
 @onready var roll_again_btn: Button = $CenterContainer/PanelContainer/VBox/ButtonRow/RollAgainButton
@@ -30,6 +31,7 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 	var total_sum: int = 0
 	var is_broken: bool = false
 	var dice_faces_list: Array[Array] = []
+	var value_counts: Dictionary = {}
 
 	for die in active_dice:
 		if not is_instance_valid(die):
@@ -47,8 +49,29 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 				is_broken = true
 			else:
 				total_sum += val
+				value_counts[val] = int(value_counts.get(val, 0)) + 1
 
 	var pmf: Dictionary = _calculate_pmf(dice_faces_list)
+
+	# Build value breakdown count string
+	var count_parts: Array[String] = []
+	var sorted_vals = value_counts.keys()
+	sorted_vals.sort()
+	sorted_vals.reverse() # Show highest face values first
+
+	for val in sorted_vals:
+		var cnt: int = int(value_counts[val])
+		count_parts.append("%ds: %d" % [val, cnt])
+
+	var counts_text: String = ""
+	if count_parts.size() == 1:
+		counts_text = "Count of " + count_parts[0]
+	elif count_parts.size() > 1:
+		counts_text = "Counts: " + ", ".join(count_parts)
+
+	if counts_label:
+		counts_label.text = counts_text
+		counts_label.visible = not counts_text.is_empty()
 
 	if is_broken:
 		if title_label:
