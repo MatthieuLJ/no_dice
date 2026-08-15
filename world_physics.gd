@@ -283,6 +283,7 @@ func _physics_process(delta: float) -> void:
 
 		if shake_cooldown <= 0.0 and pure_shake.length() > maxf(8.0, shake_threshold):
 			shake_cooldown = 0.3 # Cooldown prevents per-frame impulse spam
+			has_left_rest = true
 			var mapped_shake = Vector3(
 				pure_shake.x,
 				pure_shake.z,
@@ -303,6 +304,7 @@ func _physics_process(delta: float) -> void:
 		if input_dir.is_zero_approx():
 			simulated_gravity = simulated_gravity.lerp(Vector3(0, -9.8, 0), 5.0 * delta)
 		else:
+			has_left_rest = true
 			var tilt_x = input_dir.x * sin(max_keyboard_tilt) * 9.8
 			var tilt_z = input_dir.y * sin(max_keyboard_tilt) * 9.8
 			var tilt_y = -cos(max_keyboard_tilt) * 9.8 
@@ -345,15 +347,16 @@ func _check_at_rest_transition(delta: float) -> void:
 		return
 
 	if not all_at_rest:
-		# Dice are actively moving! Mark that they have left rest state
-		has_left_rest = true
+		# Dice are actively moving! Mark that they have left rest state (unless movement is manual dragging)
+		if not is_drag_active and dragging_die == null:
+			has_left_rest = true
 		at_rest_settle_timer = 0.0
 		if not (result_screen and result_screen.visible):
 			has_shown_result_for_current_roll = false
 			if result_screen and result_screen.visible:
 				result_screen.hide_result()
 	else:
-		# Dice are all at rest. Only trigger result screen if they have moved (has_left_rest) and haven't shown result yet
+		# Dice are all at rest. Only trigger result screen if they have moved via rolling (has_left_rest) and haven't shown result yet
 		if has_left_rest and not has_shown_result_for_current_roll:
 			at_rest_settle_timer += delta
 			if at_rest_settle_timer >= at_rest_delay:
