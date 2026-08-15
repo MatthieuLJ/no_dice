@@ -54,15 +54,18 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 			stats_label.text = "One or more dice came to rest leaning or cocked on an edge."
 	else:
 		if title_label:
-			title_label.text = "TOTAL SUM: %d" % total_sum
+			title_label.text = "Sum: %d" % total_sum
 			title_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
 
-		var prob: float = float(pmf.get(total_sum, 0.0))
-		var pct: float = prob * 100.0
-		var chance_one_in: float = 1.0 / max(0.00001, prob)
+		var prob_ge: float = 0.0
+		for s_key in pmf.keys():
+			if int(s_key) >= total_sum:
+				prob_ge += float(pmf[s_key])
+
+		var pct_ge: float = prob_ge * 100.0
 
 		if stats_label:
-			stats_label.text = "Rolled Sum: %d   |   Probability: %.2f%% (1 in %.1f)" % [total_sum, pct, chance_one_in]
+			stats_label.text = "P(Sum ≥ %d): %.1f%%" % [total_sum, pct_ge]
 
 	if histogram_draw:
 		histogram_draw.call("set_data", pmf, total_sum, is_broken)

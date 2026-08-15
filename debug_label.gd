@@ -30,4 +30,3 @@ func _process(_delta: float) -> void:
 	var rest_str: String = "YES" if (all_at_rest and dice_count > 0) else ("NO" if dice_count > 0 else "N/A")
 
 	text = "At Rest: %s | Locked: %d/%d\nLast Pick: %s\nGrav: %s | Accel: %s" % [rest_str, locked_count, dice_count, last_pick, grav, accel]
-

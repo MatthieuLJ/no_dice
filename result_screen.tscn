@@ -10,28 +10,24 @@ shader_parameter/blur_amount = 3.5
 shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glass"]
-bg_color = Color(0.03, 0.1, 0.05, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.8, 0.4, 0.6)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-shadow_color = Color(0, 0, 0, 0.5)
-shadow_size = 12
+bg_color = Color(0, 0, 0, 0)
+draw_center = false
+border_width_left = 0
+border_width_top = 0
+border_width_right = 0
+border_width_bottom = 0
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 38
-font_color = Color(0.2, 1.0, 0.4, 1)
-shadow_size = 6
-shadow_color = Color(0.0, 0.3, 0.1, 0.8)
+font_size = 48
+font_color = Color(0.2, 1, 0.4, 1)
+shadow_size = 8
+shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 16
-font_color = Color(0.7, 0.95, 0.8, 1)
+font_size = 22
+font_color = Color(0.3, 1, 0.5, 1)
+shadow_size = 4
+shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [node name="ResultScreen" type="CanvasLayer"]
 layer = 90
@@ -64,13 +60,13 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
 layout_mode = 2
-text = "TOTAL SUM: 0"
+text = "Sum: 0"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
 [node name="StatsLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
 layout_mode = 2
-text = "Rolled Sum: 0   |   Probability: 0%"
+text = "P(Sum ≥ 0): 0%"
 label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 
