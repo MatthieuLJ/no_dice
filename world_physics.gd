@@ -39,7 +39,15 @@ func _get_halo_material() -> StandardMaterial3D:
 
 func _toggle_die_user_lock(die: RigidBody3D) -> void:
 	var is_locked: bool = bool(die.get_meta("is_user_locked", false))
-	_set_die_user_lock(die, not is_locked)
+	if is_locked:
+		_set_die_user_lock(die, false)
+	else:
+		var is_at_rest: bool = die.sleeping or (die.linear_velocity.length() <= 0.03 and die.angular_velocity.length() <= 0.03)
+		if is_at_rest:
+			_set_die_user_lock(die, true)
+		else:
+			print("[DICE LOCK DEBUG] Cannot lock %s: die is currently moving!" % die.name)
+			last_pick_debug_info = "Cannot Lock: %s moving" % die.name
 
 func _set_die_user_lock(die: RigidBody3D, locked: bool) -> void:
 	die.set_meta("is_user_locked", locked)
@@ -483,4 +491,3 @@ func _reset_die() -> void:
 			d.global_position = Vector3(randf_range(-0.2, 0.2), 0.5 + (i * 0.12), randf_range(-0.2, 0.2))
 			d.linear_velocity = Vector3.ZERO
 			d.angular_velocity = Vector3.ZERO
-
