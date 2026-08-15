@@ -23,6 +23,7 @@ var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
 var has_left_rest: bool = false
 var halo_material: StandardMaterial3D = null
+var last_pick_debug_info: String = "None"
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
@@ -50,6 +51,8 @@ func _set_die_user_lock(die: RigidBody3D, locked: bool) -> void:
 	var mesh_inst = die.get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
 		mesh_inst.material_overlay = _get_halo_material() if locked else null
+
+	print("[DICE LOCK DEBUG] Set lock on %s -> %s" % [die.name, locked])
 
 func _clear_all_user_locks() -> void:
 	for d in dice:
@@ -375,13 +378,35 @@ func _unhandled_input(event: InputEvent) -> void:
 				var to = from + camera.project_ray_normal(click_pos) * 100.0
 				var space_state = get_world_3d().direct_space_state
 				var query = PhysicsRayQueryParameters3D.create(from, to)
-				var result = space_state.intersect_ray(query)
-				if result and result.has("collider"):
-					var collider = result["collider"] as RigidBody3D
-					if collider in dice:
-						_toggle_die_user_lock(collider)
-						get_viewport().set_input_as_handled()
-						return
+
+				var exclude_list: Array[RID] = []
+				var hit_die: RigidBody3D = null
+				var hit_info_str: String = "No Hit"
+
+				while true:
+					query.exclude = exclude_list
+					var result = space_state.intersect_ray(query)
+					if not result or not result.has("collider"):
+						break
+
+					var collider = result["collider"]
+					if collider in dice or (collider is RigidBody3D and collider.get_parent() == self):
+						hit_die = collider as RigidBody3D
+						hit_info_str = "Hit Die: %s" % collider.name
+						break
+					else:
+						# Exclude non-die static/area colliders (like Enclosure/Ground or Roof) and continue raycasting
+						if "rid" in result:
+							exclude_list.append(result["rid"] as RID)
+						hit_info_str = "Bypassed: %s" % collider.name
+
+				print("[DICE LOCK DEBUG] Tap at %s -> %s" % [click_pos, hit_info_str])
+				last_pick_debug_info = hit_info_str
+
+				if hit_die:
+					_toggle_die_user_lock(hit_die)
+					get_viewport().set_input_as_handled()
+					return
 
 	if event is InputEventKey and event.pressed and not event.echo:
 
