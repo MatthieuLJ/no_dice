@@ -13,9 +13,12 @@ extends Node3D
 @export var shake_multiplier: float = 4.0
 @export var shake_threshold: float = 2.0 
 @export var max_keyboard_tilt: float = PI / 4.0
+@export var at_rest_delay: float = 1.0
 
 var simulated_gravity: Vector3 = Vector3(0, -9.8, 0)
 var shake_cooldown: float = 0.0
+var roll_grace_timer: float = 0.0
+var at_rest_settle_timer: float = 0.0
 var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
 
@@ -40,11 +43,17 @@ func _ready() -> void:
 			result_screen.connect("main_menu_requested", _on_main_menu_requested)
 
 func _on_start_menu_dismissed(param: Variant) -> void:
+	if result_screen and result_screen.has_method("hide_result"):
+		result_screen.hide_result()
+	_unlock_world()
 	has_shown_result_for_current_roll = false
+	roll_grace_timer = 0.6
+	at_rest_settle_timer = 0.0
 	if param is Dictionary:
 		set_multi_dice_counts(param)
 	elif param is int:
 		set_dice_count(param)
+	_apply_strong_random_impulse()
 
 func set_multi_dice_counts(counts: Dictionary) -> void:
 	# Clear previous extra spawned dice
@@ -106,6 +115,9 @@ func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: i
 
 	die_to_use.visible = true
 	die_to_use.process_mode = PROCESS_MODE_INHERIT
+	die_to_use.freeze = false
+	die_to_use.linear_velocity = Vector3.ZERO
+	die_to_use.angular_velocity = Vector3.ZERO
 
 	if not mode_param.is_empty() and die_to_use.has_method("set_d10_mode"):
 		die_to_use.call("set_d10_mode", mode_param)
@@ -147,13 +159,36 @@ func set_dice_count(count: int) -> void:
 				randf_range(0, TAU),
 				randf_range(0, TAU)
 			)
+			new_die.freeze = false
 			dice.append(new_die)
 
+func _lock_world(active_dice: Array[RigidBody3D]) -> void:
+	for d in active_dice:
+		if is_instance_valid(d):
+			d.linear_velocity = Vector3.ZERO
+			d.angular_velocity = Vector3.ZERO
+			d.freeze = true
+	if gravity_area:
+		gravity_area.gravity_direction = Vector3.DOWN
+		gravity_area.gravity = 9.8
+
+func _unlock_world() -> void:
+	at_rest_settle_timer = 0.0
+	for d in dice:
+		if is_instance_valid(d):
+			d.freeze = false
+
 func _physics_process(delta: float) -> void:
-	var target_gravity_dir = Vector3.ZERO
+	if result_screen and result_screen.visible:
+		return
+
+	if roll_grace_timer > 0.0:
+		roll_grace_timer -= delta
 
 	if shake_cooldown > 0.0:
 		shake_cooldown -= delta
+
+	var target_gravity_dir = Vector3.ZERO
 
 	# 1. Check for Mobile Sensors
 	var device_gravity = Input.get_gravity()
@@ -208,11 +243,16 @@ func _physics_process(delta: float) -> void:
 		gravity_debugger.draw_gravity_vector(target_gravity_dir)
 
 	# 3. Check for at-rest state transition to trigger ResultScreen
-	_check_at_rest_transition()
+	_check_at_rest_transition(delta)
 
-func _check_at_rest_transition() -> void:
+func _check_at_rest_transition(delta: float) -> void:
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.visible:
+		at_rest_settle_timer = 0.0
+		return
+
+	if roll_grace_timer > 0.0:
+		at_rest_settle_timer = 0.0
 		return
 
 	var active_dice: Array[RigidBody3D] = []
@@ -225,25 +265,33 @@ func _check_at_rest_transition() -> void:
 				all_at_rest = false
 
 	if active_dice.is_empty():
+		at_rest_settle_timer = 0.0
 		return
 
 	if not all_at_rest:
-		# Reset flag when dice are actively moving
-		has_shown_result_for_current_roll = false
-		if result_screen and result_screen.visible:
-			result_screen.hide_result()
+		# Reset timer and flag when dice are actively moving
+		at_rest_settle_timer = 0.0
+		if not (result_screen and result_screen.visible):
+			has_shown_result_for_current_roll = false
+			if result_screen and result_screen.visible:
+				result_screen.hide_result()
 	else:
-		# Dice are all at rest! Trigger result screen if not already shown
+		# Dice are all at rest! Wait at_rest_delay (1s) before locking world and showing result screen
 		if not has_shown_result_for_current_roll:
-			has_shown_result_for_current_roll = true
-			if result_screen:
-				result_screen.show_result(active_dice)
+			at_rest_settle_timer += delta
+			if at_rest_settle_timer >= at_rest_delay:
+				has_shown_result_for_current_roll = true
+				_lock_world(active_dice)
+				if result_screen:
+					result_screen.show_result(active_dice)
 
 func _on_roll_again_requested() -> void:
+	_unlock_world()
 	has_shown_result_for_current_roll = false
 	_apply_strong_random_impulse()
 
 func _on_main_menu_requested() -> void:
+	_unlock_world()
 	has_shown_result_for_current_roll = false
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.has_method("show_menu"):
@@ -253,6 +301,15 @@ func _on_main_menu_requested() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if result_screen and result_screen.visible:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.physical_keycode == KEY_SPACE or event.physical_keycode == KEY_R:
+				if result_screen.has_method("hide_result"):
+					result_screen.hide_result()
+				_on_roll_again_requested()
+				get_viewport().set_input_as_handled()
+		return
+
 	if event is InputEventKey and event.pressed and not event.echo:
 
 		# --- RESET DIE (R Key) ---
@@ -279,6 +336,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _apply_strong_random_impulse() -> void:
+	_unlock_world()
+	roll_grace_timer = 0.6
 	for d in dice:
 		if not is_instance_valid(d):
 			continue
@@ -295,6 +354,8 @@ func _apply_strong_random_impulse() -> void:
 		d.apply_torque_impulse(random_spin)
 
 func _apply_randomized_jerk(base_direction: Vector3) -> void:
+	_unlock_world()
+	roll_grace_timer = 0.3
 	for d in dice:
 		if not is_instance_valid(d):
 			continue
@@ -307,6 +368,8 @@ func _apply_randomized_jerk(base_direction: Vector3) -> void:
 		d.apply_torque_impulse(random_spin)
 
 func _reset_die() -> void:
+	_unlock_world()
+	roll_grace_timer = 0.6
 	for i in range(dice.size()):
 		var d = dice[i]
 		if is_instance_valid(d):
