@@ -93,6 +93,13 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Roll Again"
 
+[node name="LockFlatButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
+visible = false
+custom_minimum_size = Vector2(210, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Lock Flat & Reroll"
+
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
 custom_minimum_size = Vector2(210, 54)
 layout_mode = 2

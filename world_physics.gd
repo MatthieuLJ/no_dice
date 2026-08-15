@@ -110,6 +110,8 @@ func _ready() -> void:
 	if result_screen:
 		if result_screen.has_signal("roll_again_requested"):
 			result_screen.connect("roll_again_requested", _on_roll_again_requested)
+		if result_screen.has_signal("lock_flat_and_reroll_requested"):
+			result_screen.connect("lock_flat_and_reroll_requested", _on_lock_flat_and_reroll_requested)
 		if result_screen.has_signal("main_menu_requested"):
 			result_screen.connect("main_menu_requested", _on_main_menu_requested)
 
@@ -367,6 +369,21 @@ func _check_at_rest_transition(delta: float) -> void:
 
 func _on_roll_again_requested() -> void:
 	_unlock_world()
+	has_shown_result_for_current_roll = false
+	has_left_rest = false
+	at_rest_settle_timer = 0.0
+	roll_grace_timer = 0.0
+
+func _on_lock_flat_and_reroll_requested() -> void:
+	for d in dice:
+		if is_instance_valid(d) and d.visible and d.process_mode != PROCESS_MODE_DISABLED:
+			if d.has_method("get_upward_value"):
+				var res = d.call("get_upward_value") as Dictionary
+				var is_flat: bool = bool(res.get("is_flat", false))
+				_set_die_user_lock(d, is_flat)
+			else:
+				_set_die_user_lock(d, true)
+
 	has_shown_result_for_current_roll = false
 	has_left_rest = false
 	at_rest_settle_timer = 0.0

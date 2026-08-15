@@ -2,12 +2,14 @@ extends CanvasLayer
 
 signal roll_again_requested
 signal main_menu_requested
+signal lock_flat_and_reroll_requested
 
 @onready var blur_rect: ColorRect = $BlurRect
 @onready var title_label: Label = $CenterContainer/PanelContainer/VBox/TitleLabel
 @onready var stats_label: Label = $CenterContainer/PanelContainer/VBox/StatsLabel
 @onready var histogram_draw: Control = $CenterContainer/PanelContainer/VBox/HistogramContainer/HistogramDrawer
 @onready var roll_again_btn: Button = $CenterContainer/PanelContainer/VBox/ButtonRow/RollAgainButton
+@onready var lock_flat_btn: Button = get_node_or_null("CenterContainer/PanelContainer/VBox/ButtonRow/LockFlatButton")
 @onready var main_menu_btn: Button = $CenterContainer/PanelContainer/VBox/ButtonRow/MainMenuButton
 
 var is_active: bool = false
@@ -16,6 +18,8 @@ func _ready() -> void:
 	visible = false
 	if roll_again_btn:
 		roll_again_btn.pressed.connect(_on_roll_again_pressed)
+	if lock_flat_btn:
+		lock_flat_btn.pressed.connect(_on_lock_flat_pressed)
 	if main_menu_btn:
 		main_menu_btn.pressed.connect(_on_main_menu_pressed)
 
@@ -52,10 +56,14 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 			title_label.add_theme_color_override("font_color", Color(1.0, 0.35, 0.35))
 		if stats_label:
 			stats_label.text = "One or more dice came to rest leaning or cocked on an edge."
+		if lock_flat_btn:
+			lock_flat_btn.visible = true
 	else:
 		if title_label:
 			title_label.text = "Sum: %d" % total_sum
 			title_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
+		if lock_flat_btn:
+			lock_flat_btn.visible = false
 
 		var prob_ge: float = 0.0
 		for s_key in pmf.keys():
@@ -80,6 +88,10 @@ func hide_result() -> void:
 func _on_roll_again_pressed() -> void:
 	hide_result()
 	roll_again_requested.emit()
+
+func _on_lock_flat_pressed() -> void:
+	hide_result()
+	lock_flat_and_reroll_requested.emit()
 
 func _on_main_menu_pressed() -> void:
 	hide_result()
