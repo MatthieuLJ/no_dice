@@ -1,11 +1,12 @@
-extends RigidBody3D
+extends BaseDie
 
-@export var ground: StaticBody3D
 @export var is_high_10: bool = false
 
 const R: float = 0.085 # Circumradius matching D6 size
 static var VERTICES: Array[Vector3] = []
 static var KITES: Array[Array] = []
+
+var current_mode: String = "low_0"
 
 static func _static_init() -> void:
 	VERTICES.clear()
@@ -46,18 +47,40 @@ static func _static_init() -> void:
 		var u_next = 2 + ((i + 1) % 5)
 		KITES.append([1, l_curr, u_next, l_next])
 
-func _ready() -> void:
-	DiceConfig.apply_to_die(self)
-	custom_integrator = false
+func set_d10_mode(param: Variant) -> void:
+	var mode_str: String = "low_0"
+	if param is bool:
+		is_high_10 = param
+		mode_str = "high_10" if param else "low_0"
+	elif param is String:
+		mode_str = param
+		is_high_10 = (param == "high_10")
 
-	if not ground:
-		var parent = get_parent()
-		if parent:
-			ground = parent.get_node_or_null("Enclosure/Ground")
+	current_mode = mode_str
 
-	_build_trapezohedron_mesh_and_collider()
+	var tex_path: String = "res://textures/d10_texture.png"
+	if mode_str == "high_10":
+		tex_path = "res://textures/d10_high_texture.png"
+	elif mode_str == "tens":
+		tex_path = "res://textures/d10_tens_texture.png"
 
-func _build_trapezohedron_mesh_and_collider() -> void:
+	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
+	if mesh_inst:
+		var tex = load(tex_path)
+		if tex:
+			if not mesh_inst.material_override:
+				var mat = StandardMaterial3D.new()
+				mat.roughness = 0.4
+				mat.metallic = 0.0
+				mat.metallic_specular = 0.5
+				mat.albedo_color = Color.WHITE
+				mesh_inst.material_override = mat
+			(mesh_inst.material_override as StandardMaterial3D).albedo_texture = tex
+
+func _get_die_half_size() -> float:
+	return R
+
+func _build_mesh_and_collider() -> void:
 	# 1. Collider
 	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if col_shape:
@@ -137,135 +160,39 @@ func _build_trapezohedron_mesh_and_collider() -> void:
 
 		mesh_inst.mesh = st.commit()
 
-var current_mode: String = "low_0"
-
-func set_d10_mode(param: Variant) -> void:
-	var mode_str: String = "low_0"
-	if param is bool:
-		is_high_10 = param
-		mode_str = "high_10" if param else "low_0"
-	elif param is String:
-		mode_str = param
-		is_high_10 = (param == "high_10")
-
-	current_mode = mode_str
-
-	var tex_path: String = "res://textures/d10_texture.png"
-	if mode_str == "high_10":
-		tex_path = "res://textures/d10_high_texture.png"
-	elif mode_str == "tens":
-		tex_path = "res://textures/d10_tens_texture.png"
-
-	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
-	if mesh_inst:
-		var tex = load(tex_path)
-		if tex:
-			if not mesh_inst.material_override:
-				var mat = StandardMaterial3D.new()
-				mat.roughness = 0.4
-				mat.metallic = 0.0
-				mat.metallic_specular = 0.5
-				mat.albedo_color = Color.WHITE
-				mesh_inst.material_override = mat
-			(mesh_inst.material_override as StandardMaterial3D).albedo_texture = tex
-
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	if not ground:
-		return
+	super._integrate_forces(state)
+	var local_pos: Vector3 = ground.to_local(state.transform.origin) if ground else Vector3.ZERO
 
-	var current_transform = state.transform
-	var local_pos = ground.to_local(current_transform.origin)
-	var view_size = get_viewport().get_visible_rect().size
-	var aspect_ratio = 1.0
-	if view_size.x > 0:
-		aspect_ratio = view_size.y / view_size.x
-
-	var inset_factor = ground.get("base_inset_factor") if ground and "base_inset_factor" in ground else 1.0
-	var half_size = R
-
-	# X Bounds (East/West walls at +/- inset_factor at floor)
-	var min_x = -inset_factor + half_size
-	var max_x = inset_factor - half_size
-
-	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
-	var min_y = 0.0
-	var max_y = 2.0 - half_size
-
-	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
-	var min_z = -(aspect_ratio * inset_factor) + half_size
-	var max_z = (aspect_ratio * inset_factor) - half_size
-
-	var clamped_x = clampf(local_pos.x, min_x, max_x)
-	var clamped_y = clampf(local_pos.y, min_y, max_y)
-	var clamped_z = clampf(local_pos.z, min_z, max_z)
-
-	if clamped_x != local_pos.x or clamped_y != local_pos.y or clamped_z != local_pos.z:
-		var safe_local_pos = Vector3(clamped_x, clamped_y, clamped_z)
-		current_transform.origin = ground.to_global(safe_local_pos)
-		state.transform = current_transform
-		sleeping = false
-
-		if local_pos.x <= min_x:
-			state.linear_velocity.x = maxf(0.0, state.linear_velocity.x)
-		elif local_pos.x >= max_x:
-			state.linear_velocity.x = minf(0.0, state.linear_velocity.x)
-
-		if local_pos.y <= min_y:
-			state.linear_velocity.y = maxf(0.0, state.linear_velocity.y)
-		elif local_pos.y >= max_y:
-			state.linear_velocity.y = minf(0.0, state.linear_velocity.y)
-
-		if local_pos.z <= min_z:
-			state.linear_velocity.z = maxf(0.0, state.linear_velocity.z)
-		elif local_pos.z >= max_z:
-			state.linear_velocity.z = minf(0.0, state.linear_velocity.z)
-
-	if local_pos.y < -2.0 or local_pos.length() > 10.0:
-		var reset_transform = state.transform
-		reset_transform.origin = ground.to_global(Vector3(0.0, 0.5, 0.0))
-		state.transform = reset_transform
-		state.linear_velocity = Vector3.ZERO
-		state.angular_velocity = Vector3.ZERO
-
-	# Unstable apex tip correction: ONLY if D10 is stationary but caught balancing high on an apex (local_pos.y > 0.075m), apply a subtle micro-torque to tip onto a flat face
+	# Unstable apex tip correction: ONLY if D10 is stationary but caught balancing high on an apex (local_pos.y > 0.075m)
 	if local_pos.y > 0.075 and state.linear_velocity.length() < 0.02 and state.angular_velocity.length() < 0.02:
 		var nudge_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
 		if nudge_dir.is_zero_approx():
 			nudge_dir = Vector3.RIGHT
 		state.apply_torque_impulse(nudge_dir * 0.003)
 
-func get_upward_value() -> Dictionary:
-	var up: Vector3 = Vector3.UP
-	if ground:
-		up = ground.global_transform.basis.y.normalized()
-
+func _get_faces() -> Array:
 	var face_values: Array[int] = [0, 1, 2, 3, 4, 6, 5, 9, 8, 7]
 	if current_mode == "high_10":
 		face_values = [1, 2, 3, 4, 5, 7, 6, 10, 9, 8]
 	elif current_mode == "tens":
 		face_values = [0, 10, 20, 30, 40, 60, 50, 90, 80, 70]
 
-	var best_dot: float = -1.0
-	var best_val: int = face_values[0]
-	var b: Basis = global_transform.basis
-
+	var faces: Array = []
 	for k_idx in range(KITES.size()):
 		var kite: Array = KITES[k_idx]
 		var vA: Vector3 = VERTICES[int(kite[0])]
 		var vB: Vector3 = VERTICES[int(kite[1])]
 		var vC: Vector3 = VERTICES[int(kite[2])]
 		var vD: Vector3 = VERTICES[int(kite[3])]
-
 		var center: Vector3 = (vA + vB + vC + vD) * 0.25
 		var n: Vector3 = (vB - vA).cross(vD - vA).normalized()
 		if n.dot(center) < 0:
 			n = -n
+		faces.append({ "normal": n, "value": face_values[k_idx] })
+	return faces
 
-		var world_n: Vector3 = (b * n).normalized()
-		var d: float = world_n.dot(up)
-		if d > best_dot:
-			best_dot = d
-			best_val = face_values[k_idx]
-
-	var is_flat: bool = (best_dot >= 0.96)
-	return { "value": best_val, "is_flat": is_flat }
+func get_upward_value() -> Dictionary:
+	var res: Dictionary = super.get_upward_value()
+	res["is_flat"] = (float(res["dot"]) >= 0.96)
+	return res

@@ -1,6 +1,4 @@
-extends RigidBody3D
-
-@export var ground: StaticBody3D
+extends BaseDie
 
 const R: float = 0.085 # Circumradius matching D6 size
 static var VERTICES: Array[Vector3] = []
@@ -40,18 +38,10 @@ static func _static_init() -> void:
 	for v in raw_verts:
 		VERTICES.append(rot_basis * v)
 
-func _ready() -> void:
-	DiceConfig.apply_to_die(self)
-	custom_integrator = false
+func _get_die_half_size() -> float:
+	return R
 
-	if not ground:
-		var parent = get_parent()
-		if parent:
-			ground = parent.get_node_or_null("Enclosure/Ground")
-
-	_build_octahedron_mesh_and_collider()
-
-func _build_octahedron_mesh_and_collider() -> void:
+func _build_mesh_and_collider() -> void:
 	# 1. Collider
 	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if col_shape:
@@ -116,74 +106,9 @@ func _build_octahedron_mesh_and_collider() -> void:
 
 		mesh_inst.mesh = st.commit()
 
-func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	if not ground:
-		return
-
-	var current_transform = state.transform
-	var local_pos = ground.to_local(current_transform.origin)
-	var view_size = get_viewport().get_visible_rect().size
-	var aspect_ratio = 1.0
-	if view_size.x > 0:
-		aspect_ratio = view_size.y / view_size.x
-
-	var inset_factor = ground.get("base_inset_factor") if ground and "base_inset_factor" in ground else 1.0
-	var half_size = R
-
-	# X Bounds (East/West walls at +/- inset_factor at floor)
-	var min_x = -inset_factor + half_size
-	var max_x = inset_factor - half_size
-
-	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
-	var min_y = 0.0
-	var max_y = 2.0 - half_size
-
-	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
-	var min_z = -(aspect_ratio * inset_factor) + half_size
-	var max_z = (aspect_ratio * inset_factor) - half_size
-
-	var clamped_x = clampf(local_pos.x, min_x, max_x)
-	var clamped_y = clampf(local_pos.y, min_y, max_y)
-	var clamped_z = clampf(local_pos.z, min_z, max_z)
-
-	if clamped_x != local_pos.x or clamped_y != local_pos.y or clamped_z != local_pos.z:
-		var safe_local_pos = Vector3(clamped_x, clamped_y, clamped_z)
-		current_transform.origin = ground.to_global(safe_local_pos)
-		state.transform = current_transform
-		sleeping = false
-
-		if local_pos.x <= min_x:
-			state.linear_velocity.x = maxf(0.0, state.linear_velocity.x)
-		elif local_pos.x >= max_x:
-			state.linear_velocity.x = minf(0.0, state.linear_velocity.x)
-
-		if local_pos.y <= min_y:
-			state.linear_velocity.y = maxf(0.0, state.linear_velocity.y)
-		elif local_pos.y >= max_y:
-			state.linear_velocity.y = minf(0.0, state.linear_velocity.y)
-
-		if local_pos.z <= min_z:
-			state.linear_velocity.z = maxf(0.0, state.linear_velocity.z)
-		elif local_pos.z >= max_z:
-			state.linear_velocity.z = minf(0.0, state.linear_velocity.z)
-
-	if local_pos.y < -2.0 or local_pos.length() > 10.0:
-		var reset_transform = state.transform
-		reset_transform.origin = ground.to_global(Vector3(0.0, 0.5, 0.0))
-		state.transform = reset_transform
-		state.linear_velocity = Vector3.ZERO
-		state.angular_velocity = Vector3.ZERO
-
-func get_upward_value() -> Dictionary:
-	var up: Vector3 = Vector3.UP
-	if ground:
-		up = ground.global_transform.basis.y.normalized()
-
+func _get_faces() -> Array:
+	var faces: Array = []
 	var d8_vals: Array[int] = [1, 2, 3, 4, 5, 6, 7, 8]
-	var best_dot: float = -1.0
-	var best_val: int = 1
-	var b: Basis = global_transform.basis
-
 	for idx in range(FACE_SPECS.size()):
 		var spec = FACE_SPECS[idx]
 		var tri = spec["tri"] as Vector3i
@@ -194,12 +119,10 @@ func get_upward_value() -> Dictionary:
 		var center = (v0 + v1 + v2) / 3.0
 		if n.dot(center) < 0:
 			n = -n
+		faces.append({ "normal": n, "value": d8_vals[idx] })
+	return faces
 
-		var world_n: Vector3 = (b * n).normalized()
-		var d: float = world_n.dot(up)
-		if d > best_dot:
-			best_dot = d
-			best_val = d8_vals[idx]
-
-	var is_flat: bool = (best_dot >= 0.96)
-	return { "value": best_val, "is_flat": is_flat }
+func get_upward_value() -> Dictionary:
+	var res: Dictionary = super.get_upward_value()
+	res["is_flat"] = (float(res["dot"]) >= 0.96)
+	return res
