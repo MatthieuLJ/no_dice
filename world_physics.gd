@@ -10,7 +10,7 @@ extends Node3D
 @onready var gravity_debugger: MeshInstance3D = $Enclosure/GravityDebugger
 
 @export_group("Physics Settings")
-@export var shake_multiplier: float = 6.0
+@export var shake_multiplier: float = 3.5
 @export var shake_threshold: float = 2.5
 @export var max_keyboard_tilt: float = PI / 4.0
 @export var at_rest_delay: float = 1.0
@@ -279,13 +279,13 @@ func _physics_process(delta: float) -> void:
 
 		target_gravity_dir = mapped_gravity
 
-		# Calculate dynamic physical shake with upward launch boost and rotation spin
+		# Calculate balanced physical shake with smooth upward toss and rotation spin
 		var total_accel = Input.get_accelerometer()
 		var pure_shake = total_accel - device_gravity
 		var shake_mag = pure_shake.length()
 
 		if shake_cooldown <= 0.0 and shake_mag > maxf(2.5, shake_threshold):
-			shake_cooldown = 0.12 # Fast responsive cooldown for continuous shaking
+			shake_cooldown = 0.15 # Responsive cooldown
 			has_left_rest = true
 
 			# Map hardware shake axes to 3D world space
@@ -295,12 +295,12 @@ func _physics_process(delta: float) -> void:
 				-pure_shake.y
 			)
 
-			# Give a strong vertical kick so dice launch up into the air when shaken strongly
-			var upward_kick = maxf(1.5, shake_mag * 0.25)
+			# Gentle upward toss so dice lift off the ground slightly without hitting the roof
+			var upward_kick = clampf(shake_mag * 0.08, 0.2, 0.8)
 			mapped_shake.y += upward_kick
 
-			# Scale impulse so strong phone shakes make dice fly across the tray
-			var impulse_scale = shake_multiplier * 0.35
+			# Scale impulse for balanced movement
+			var impulse_scale = shake_multiplier * 0.12
 
 			for d in dice:
 				if is_instance_valid(d):
@@ -308,13 +308,12 @@ func _physics_process(delta: float) -> void:
 						continue
 
 					var die_impulse = mapped_shake * impulse_scale
-					# Add slight random directional variation per die so dice scatter dynamically
-					die_impulse += Vector3(randf_range(-0.5, 0.5), randf_range(0.0, 0.5), randf_range(-0.5, 0.5))
+					die_impulse += Vector3(randf_range(-0.1, 0.1), randf_range(0.0, 0.1), randf_range(-0.1, 0.1))
 
 					d.apply_central_impulse(die_impulse)
 
-					# Strong dynamic torque spin so dice tumble mid-air
-					var spin_power = randf_range(0.3, 0.8) * shake_multiplier
+					# Smooth torque spin so dice tumble nicely
+					var spin_power = randf_range(0.15, 0.4) * shake_multiplier
 					var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * spin_power
 					d.apply_torque_impulse(random_spin)
 
@@ -341,7 +340,15 @@ func _physics_process(delta: float) -> void:
 		gravity_area.gravity = 9.8
 		gravity_debugger.draw_gravity_vector(target_gravity_dir)
 
-	# 3. Check for at-rest state transition to trigger ResultScreen
+	# 3. Contain dice within screen height bounds
+	for d in dice:
+		if is_instance_valid(d) and d.visible:
+			if d.position.y > 0.7:
+				d.position.y = 0.7
+				if d.linear_velocity.y > 0.0:
+					d.linear_velocity.y = 0.0
+
+	# 4. Check for at-rest state transition to trigger ResultScreen
 	_check_at_rest_transition(delta)
 
 func _check_at_rest_transition(delta: float) -> void:
