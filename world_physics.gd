@@ -10,8 +10,8 @@ extends Node3D
 @onready var gravity_debugger: MeshInstance3D = $Enclosure/GravityDebugger
 
 @export_group("Physics Settings")
-@export var shake_multiplier: float = 4.0
-@export var shake_threshold: float = 2.0 
+@export var shake_multiplier: float = 6.0
+@export var shake_threshold: float = 2.5
 @export var max_keyboard_tilt: float = PI / 4.0
 @export var at_rest_delay: float = 1.0
 
@@ -272,31 +272,50 @@ func _physics_process(delta: float) -> void:
 	if not device_gravity.is_zero_approx():
 		# --- MOBILE MODE ---
 		var mapped_gravity = Vector3(
-			device_gravity.x,  # Left/Right usually stays on X
+			device_gravity.x,  # Left/Right stays on X
 			device_gravity.z, # Hardware Z (in/out of screen) becomes Godot's Up/Down
 			-device_gravity.y   # Hardware Y (top/bottom of phone) becomes Godot's Forward/Back
 		)
 
 		target_gravity_dir = mapped_gravity
 
-		# Calculate dynamic physical shake with noise filtering and cooldown
+		# Calculate dynamic physical shake with upward launch boost and rotation spin
 		var total_accel = Input.get_accelerometer()
 		var pure_shake = total_accel - device_gravity
+		var shake_mag = pure_shake.length()
 
-		if shake_cooldown <= 0.0 and pure_shake.length() > maxf(8.0, shake_threshold):
-			shake_cooldown = 0.3 # Cooldown prevents per-frame impulse spam
+		if shake_cooldown <= 0.0 and shake_mag > maxf(2.5, shake_threshold):
+			shake_cooldown = 0.12 # Fast responsive cooldown for continuous shaking
 			has_left_rest = true
+
+			# Map hardware shake axes to 3D world space
 			var mapped_shake = Vector3(
 				pure_shake.x,
 				pure_shake.z,
 				-pure_shake.y
 			)
+
+			# Give a strong vertical kick so dice launch up into the air when shaken strongly
+			var upward_kick = maxf(1.5, shake_mag * 0.25)
+			mapped_shake.y += upward_kick
+
+			# Scale impulse so strong phone shakes make dice fly across the tray
+			var impulse_scale = shake_multiplier * 0.35
+
 			for d in dice:
 				if is_instance_valid(d):
 					if bool(d.get_meta("is_user_locked", false)):
 						continue
-					d.apply_central_impulse(mapped_shake * (shake_multiplier * 0.05))
-					var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.02
+
+					var die_impulse = mapped_shake * impulse_scale
+					# Add slight random directional variation per die so dice scatter dynamically
+					die_impulse += Vector3(randf_range(-0.5, 0.5), randf_range(0.0, 0.5), randf_range(-0.5, 0.5))
+
+					d.apply_central_impulse(die_impulse)
+
+					# Strong dynamic torque spin so dice tumble mid-air
+					var spin_power = randf_range(0.3, 0.8) * shake_multiplier
+					var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * spin_power
 					d.apply_torque_impulse(random_spin)
 
 	else:
