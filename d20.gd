@@ -36,6 +36,7 @@ static func _static_init() -> void:
 	]
 
 func _ready() -> void:
+	DiceConfig.apply_to_die(self)
 	custom_integrator = false
 	can_sleep = true
 

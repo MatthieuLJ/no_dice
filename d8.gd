@@ -41,7 +41,7 @@ static func _static_init() -> void:
 		VERTICES.append(rot_basis * v)
 
 func _ready() -> void:
-	inertia = Vector3(0.01, 0.01, 0.01)
+	DiceConfig.apply_to_die(self)
 	custom_integrator = false
 
 	if not ground:

@@ -2,6 +2,9 @@ extends RigidBody3D
 
 @export var ground: StaticBody3D
 
+func _ready() -> void:
+	DiceConfig.apply_to_die(self)
+
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not ground:
 		return

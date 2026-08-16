@@ -47,6 +47,7 @@ static func _static_init() -> void:
 		KITES.append([1, l_curr, u_next, l_next])
 
 func _ready() -> void:
+	DiceConfig.apply_to_die(self)
 	custom_integrator = false
 
 	if not ground:

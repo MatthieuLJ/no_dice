@@ -18,7 +18,7 @@ static var TRIANGLES: Array[Vector3i] = [
 ]
 
 func _ready() -> void:
-	inertia = Vector3(0.01, 0.01, 0.01)
+	DiceConfig.apply_to_die(self)
 	custom_integrator = false
 
 	if not ground:

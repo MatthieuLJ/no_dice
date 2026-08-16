@@ -191,10 +191,7 @@ func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: i
 	die_to_use.visible = true
 	die_to_use.process_mode = PROCESS_MODE_INHERIT
 	die_to_use.freeze = false
-	die_to_use.mass = 0.05
-	die_to_use.inertia = Vector3(0.0001, 0.0001, 0.0001)
-	die_to_use.linear_damp = 0.05
-	die_to_use.angular_damp = 0.1
+	DiceConfig.apply_to_die(die_to_use)
 	die_to_use.linear_velocity = Vector3.ZERO
 	die_to_use.angular_velocity = Vector3.ZERO
 
