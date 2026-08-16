@@ -255,6 +255,8 @@ func _unlock_world() -> void:
 		if is_instance_valid(d):
 			var user_locked = bool(d.get_meta("is_user_locked", false))
 			d.freeze = user_locked
+			if not user_locked:
+				d.sleeping = false
 
 func _physics_process(delta: float) -> void:
 	if result_screen and result_screen.visible:
@@ -325,10 +327,6 @@ func _physics_process(delta: float) -> void:
 
 			if lin_speed < 0.08 and ang_speed < 0.15:
 				d.angular_velocity = d.angular_velocity.lerp(Vector3.ZERO, minf(1.0, 12.0 * delta))
-				if lin_speed < 0.02 and ang_speed < 0.02:
-					d.linear_velocity = Vector3.ZERO
-					d.angular_velocity = Vector3.ZERO
-					d.sleeping = true
 
 	# 3. Check for at-rest state transition to trigger ResultScreen
 	_check_at_rest_transition(delta)
