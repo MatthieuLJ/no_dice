@@ -378,10 +378,9 @@ func _on_roll_again_requested() -> void:
 		result_screen.hide_result()
 	_unlock_world()
 	has_shown_result_for_current_roll = false
-	has_left_rest = true
-	roll_grace_timer = 0.6
+	has_left_rest = false
 	at_rest_settle_timer = 0.0
-	_apply_strong_random_impulse()
+	roll_grace_timer = 0.0
 
 func _on_lock_flat_and_reroll_requested() -> void:
 	if result_screen and result_screen.has_method("hide_result"):
@@ -397,10 +396,9 @@ func _on_lock_flat_and_reroll_requested() -> void:
 
 	_unlock_world()
 	has_shown_result_for_current_roll = false
-	has_left_rest = true
-	roll_grace_timer = 0.6
+	has_left_rest = false
 	at_rest_settle_timer = 0.0
-	_apply_strong_random_impulse()
+	roll_grace_timer = 0.0
 
 func _on_main_menu_requested() -> void:
 	_clear_all_user_locks()
