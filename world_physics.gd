@@ -565,12 +565,14 @@ func _apply_strong_random_impulse() -> void:
 		if horiz_dir.is_zero_approx():
 			horiz_dir = Vector3.FORWARD
 
-		var impulse = horiz_dir * randf_range(1.5, 3.0) * (shake_multiplier * 0.25)
-		impulse.y += randf_range(1.0, 2.5) * (shake_multiplier * 0.25)
+		var horiz_speed = randf_range(0.04, 0.08)
+		var vert_speed = randf_range(0.02, 0.05)
+		var impulse = horiz_dir * horiz_speed
+		impulse.y = vert_speed
 
 		d.apply_central_impulse(impulse)
 
-		var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * randf_range(0.2, 0.5)
+		var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * randf_range(0.005, 0.015)
 		d.apply_torque_impulse(random_spin)
 
 func _apply_randomized_jerk(base_direction: Vector3) -> void:
@@ -582,12 +584,12 @@ func _apply_randomized_jerk(base_direction: Vector3) -> void:
 			continue
 		if bool(d.get_meta("is_user_locked", false)):
 			continue
-		var random_jerk = base_direction * randf_range(0.8, 1.2) * (shake_multiplier * 0.1)
-		random_jerk.y += randf_range(0.3, 0.6) * (shake_multiplier * 0.1)
+		var random_jerk = base_direction * randf_range(0.02, 0.05)
+		random_jerk.y += randf_range(0.01, 0.03)
 
 		d.apply_central_impulse(random_jerk)
 
-		var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.05
+		var random_spin = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * 0.005
 		d.apply_torque_impulse(random_spin)
 
 func _reset_die() -> void:
