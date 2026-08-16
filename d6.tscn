@@ -4,7 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://dssxbe4ueaj2h" path="res://textures/d6_texture.png" id="2_183hu"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
-friction = 0.5
+friction = 0.2
+bounce = 0.1
 absorbent = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
@@ -27,12 +28,12 @@ _surfaces = [{
 
 [node name="D6" type="RigidBody3D" unique_id=343189897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.5, 0.1)
-mass = 0.5
+mass = 0.05
 physics_material_override = SubResource("PhysicsMaterial_gxo0y")
-inertia = Vector3(0.01, 0.01, 0.01)
+inertia = Vector3(0.0001, 0.0001, 0.0001)
 continuous_cd = true
-linear_damp = 0.5
-angular_damp = 1.0
+linear_damp = 0.05
+angular_damp = 0.1
 script = ExtResource("1_d6")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1056087167]
