@@ -264,58 +264,26 @@ func _physics_process(delta: float) -> void:
 	if shake_cooldown > 0.0:
 		shake_cooldown -= delta
 
-	var target_gravity_dir = Vector3.ZERO
-
 	# 1. Check for Mobile Sensors
-	var device_gravity = Input.get_gravity()
+	var accel = Input.get_accelerometer()
 
-	if not device_gravity.is_zero_approx():
-		# --- MOBILE MODE ---
-		var mapped_gravity = Vector3(
-			device_gravity.x,  # Left/Right stays on X
-			device_gravity.z, # Hardware Z (in/out of screen) becomes Godot's Up/Down
-			-device_gravity.y   # Hardware Y (top/bottom of phone) becomes Godot's Forward/Back
+	if not accel.is_zero_approx():
+		# --- PURE MOBILE ACCELEROMETER GRAVITY ---
+		# Map hardware 3D acceleration vector directly to arena gravity space
+		var world_accel = Vector3(
+			accel.x,
+			-accel.z,
+			-accel.y
 		)
 
-		target_gravity_dir = mapped_gravity
+		if world_accel.length() > 0.001:
+			gravity_area.gravity_direction = world_accel.normalized()
+			gravity_area.gravity = world_accel.length()
+			gravity_debugger.draw_gravity_vector(world_accel)
 
-		# Calculate balanced physical shake with smooth upward toss and rotation spin
-		var total_accel = Input.get_accelerometer()
-		var pure_shake = total_accel - device_gravity
-		var shake_mag = pure_shake.length()
-
-		if shake_cooldown <= 0.0 and shake_mag > maxf(2.5, shake_threshold):
-			shake_cooldown = 0.15 # Responsive cooldown
+		# Flag roll active if device acceleration departs from stationary rest
+		if absf(world_accel.length() - 9.8) > 2.0 or absf(accel.x) > 2.0 or absf(accel.y) > 2.0:
 			has_left_rest = true
-
-			# Map hardware shake axes to 3D world space
-			var mapped_shake = Vector3(
-				pure_shake.x,
-				pure_shake.z,
-				-pure_shake.y
-			)
-
-			# Gentle upward toss so dice lift off the ground slightly without hitting the roof
-			var upward_kick = clampf(shake_mag * 0.08, 0.2, 0.8)
-			mapped_shake.y += upward_kick
-
-			# Scale impulse for balanced movement
-			var impulse_scale = shake_multiplier * 0.12
-
-			for d in dice:
-				if is_instance_valid(d):
-					if bool(d.get_meta("is_user_locked", false)):
-						continue
-
-					var die_impulse = mapped_shake * impulse_scale
-					die_impulse += Vector3(randf_range(-0.1, 0.1), randf_range(0.0, 0.1), randf_range(-0.1, 0.1))
-
-					d.apply_central_impulse(die_impulse)
-
-					# Smooth torque spin so dice tumble nicely
-					var spin_power = randf_range(0.15, 0.4) * shake_multiplier
-					var random_spin = Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized() * spin_power
-					d.apply_torque_impulse(random_spin)
 
 	else:
 		# --- DESKTOP TESTING MODE (Arrow Keys) ---
@@ -332,15 +300,12 @@ func _physics_process(delta: float) -> void:
 			var target_grav = Vector3(tilt_x, tilt_y, tilt_z)
 			simulated_gravity = simulated_gravity.lerp(target_grav, 8.0 * delta)
 
-		target_gravity_dir = simulated_gravity
+		if simulated_gravity.length() > 0.001:
+			gravity_area.gravity_direction = simulated_gravity.normalized()
+			gravity_area.gravity = 9.8
+			gravity_debugger.draw_gravity_vector(simulated_gravity)
 
-	# 2. Apply the calculated gravity to the Area3D
-	if target_gravity_dir.length() > 0.001:
-		gravity_area.gravity_direction = target_gravity_dir.normalized()
-		gravity_area.gravity = 9.8
-		gravity_debugger.draw_gravity_vector(target_gravity_dir)
-
-	# 3. Contain dice within screen height bounds
+	# 2. Contain dice within screen height bounds
 	for d in dice:
 		if is_instance_valid(d) and d.visible:
 			if d.position.y > 0.7:
@@ -348,7 +313,7 @@ func _physics_process(delta: float) -> void:
 				if d.linear_velocity.y > 0.0:
 					d.linear_velocity.y = 0.0
 
-	# 4. Check for at-rest state transition to trigger ResultScreen
+	# 3. Check for at-rest state transition to trigger ResultScreen
 	_check_at_rest_transition(delta)
 
 func _check_at_rest_transition(delta: float) -> void:
