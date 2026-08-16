@@ -345,22 +345,20 @@ func _check_at_rest_transition(delta: float) -> void:
 	for d in dice:
 		if is_instance_valid(d) and d.visible and d.process_mode != PROCESS_MODE_DISABLED:
 			active_dice.append(d)
-			if not d.sleeping and (d.linear_velocity.length() > 0.03 or d.angular_velocity.length() > 0.03):
+			var speed = d.linear_velocity.length()
+			var rot_speed = d.angular_velocity.length()
+			if not d.sleeping and (speed > 0.03 or rot_speed > 0.03):
 				all_at_rest = false
+				# Only register true rolling motion if speed exceeds physical threshold
+				if (speed > 0.15 or rot_speed > 0.25) and not is_drag_active and dragging_die == null:
+					has_left_rest = true
 
 	if active_dice.is_empty():
 		at_rest_settle_timer = 0.0
 		return
 
 	if not all_at_rest:
-		# Dice are actively moving! Mark that they have left rest state (unless movement is manual dragging)
-		if not is_drag_active and dragging_die == null:
-			has_left_rest = true
 		at_rest_settle_timer = 0.0
-		if not (result_screen and result_screen.visible):
-			has_shown_result_for_current_roll = false
-			if result_screen and result_screen.visible:
-				result_screen.hide_result()
 	else:
 		# Dice are all at rest. Only trigger result screen if they have moved via rolling (has_left_rest) and haven't shown result yet
 		if has_left_rest and not has_shown_result_for_current_roll:
@@ -378,7 +376,7 @@ func _on_roll_again_requested() -> void:
 	has_shown_result_for_current_roll = false
 	has_left_rest = false
 	at_rest_settle_timer = 0.0
-	roll_grace_timer = 0.0
+	roll_grace_timer = 0.5
 
 func _on_lock_flat_and_reroll_requested() -> void:
 	if result_screen and result_screen.has_method("hide_result"):
@@ -396,7 +394,7 @@ func _on_lock_flat_and_reroll_requested() -> void:
 	has_shown_result_for_current_roll = false
 	has_left_rest = false
 	at_rest_settle_timer = 0.0
-	roll_grace_timer = 0.0
+	roll_grace_timer = 0.5
 
 func _on_main_menu_requested() -> void:
 	_clear_all_user_locks()
