@@ -1,11 +1,10 @@
-[gd_scene format=3 uid="uid://d6die7c1k42k"]
+[gd_scene format=4 uid="uid://d6die7c1k42k"]
 
-[ext_resource type="Script" path="res://d6.gd" id="1_d6"]
-[ext_resource type="Texture2D" path="res://textures/d6_texture.png" id="2_183hu"]
+[ext_resource type="Script" uid="uid://dxfeqodshye55" path="res://d6.gd" id="1_d6"]
+[ext_resource type="Texture2D" uid="uid://dssxbe4ueaj2h" path="res://textures/d6_texture.png" id="2_183hu"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
 friction = 0.5
-bounce = 0.0
 absorbent = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_lbo6s"]
@@ -26,12 +25,11 @@ _surfaces = [{
 "vertex_data": PackedByteArray("zcxMvc3MTD3NzEw9zcxMPc3MTD3NzEw9zcxMPc3MTL3NzEw9zcxMvc3MTD3NzEw9zcxMPc3MTL3NzEw9zcxMvc3MTL3NzEw9zcxMPc3MTD3NzEy9zcxMvc3MTD3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTD3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTL3NzEy9zcxMvc3MTD3NzEy9zcxMPc3MTD3NzEy9zcxMPc3MTD3NzEw9zcxMvc3MTD3NzEy9zcxMPc3MTD3NzEw9zcxMvc3MTD3NzEw9zcxMvc3MTL3NzEw9zcxMPc3MTL3NzEw9zcxMPc3MTL3NzEy9zcxMvc3MTL3NzEw9zcxMPc3MTL3NzEy9zcxMvc3MTL3NzEy9zcxMPc3MTD3NzEw9zcxMPc3MTD3NzEy9zcxMPc3MTL3NzEy9zcxMPc3MTD3NzEw9zcxMPc3MTL3NzEy9zcxMPc3MTL3NzEw9zcxMvc3MTD3NzEy9zcxMvc3MTD3NzEw9zcxMvc3MTL3NzEw9zcxMvc3MTD3NzEy9zcxMvc3MTL3NzEw9zcxMvc3MTL3NzEy9/3//f/9/AID/f/9//38AgP9//3//fwCA/3//f/9/AID/f/9//38AgP9//3//fwCA//////9/AID//////38AgP//////fwCA//////9/AID//////38AgP//////fwCA/3///wAA/7//f///AAD/v/9///8AAP+//3///wAA/7//f///AAD/v/9///8AAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+//38AAAAA/7//fwAAAAD/v/9/AAAAAP+/////f/9//7////9//3//v////3//f/+/////f/9//7////9//3//v////3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/AAD/f/9//78AAP9//3//vwAA/3//f/+/")
 }]
 
-[node name="D6" type="RigidBody3D" unique_id=343189897 node_paths=PackedStringArray("ground")]
+[node name="D6" type="RigidBody3D" unique_id=343189897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.5, 0.1)
-physics_material_override = SubResource("PhysicsMaterial_gxo0y")
 mass = 0.5
+physics_material_override = SubResource("PhysicsMaterial_gxo0y")
 inertia = Vector3(0.01, 0.01, 0.01)
-can_sleep = true
 continuous_cd = true
 linear_damp = 0.5
 angular_damp = 1.0

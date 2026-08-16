@@ -274,9 +274,9 @@ func _physics_process(delta: float) -> void:
 		# Hardware Y (Top/Bottom)  -> Godot -Y (pulls down onto felt floor in portrait orientation)
 		# Hardware Z (Front/Back)  -> Godot -Z
 		var world_accel = Vector3(
-			accel.x,
-			-accel.y,
-			-accel.z
+			accel.x * 1.5,
+			accel.z,
+			-accel.y * 1.5
 		)
 
 		if world_accel.length() > 0.001:
