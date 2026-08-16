@@ -29,6 +29,7 @@ var dragging_die: RigidBody3D = null
 var drag_start_pos: Vector2 = Vector2.ZERO
 var is_drag_active: bool = false
 var drag_threshold: float = 8.0
+var filtered_accel: Vector3 = Vector3.ZERO
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
@@ -266,18 +267,19 @@ func _physics_process(delta: float) -> void:
 		shake_cooldown -= delta
 
 	# 1. Check for Mobile Sensors
-	var accel = Input.get_accelerometer()
+	var raw_accel = Input.get_accelerometer()
 
-	if not accel.is_zero_approx():
-		# --- PURE MOBILE ACCELEROMETER GRAVITY ---
-		# Direct 1-to-1 3D mapping of hardware acceleration to Godot arena space:
-		# Hardware X (Left/Right)  -> Godot X
-		# Hardware Y (Top/Bottom)  -> Godot -Y (pulls down onto felt floor in portrait orientation)
-		# Hardware Z (Front/Back)  -> Godot -Z
+	if not raw_accel.is_zero_approx():
+		# Low-pass filter (25 Hz) to smooth high-frequency hardware sensor noise/jitter
+		if filtered_accel.is_zero_approx():
+			filtered_accel = raw_accel
+		else:
+			filtered_accel = filtered_accel.lerp(raw_accel, minf(1.0, 25.0 * delta))
+
 		var world_accel = Vector3(
-			accel.x * 1.5,
-			accel.z,
-			-accel.y * 1.5
+			filtered_accel.x * 1.5,
+			filtered_accel.z,
+			-filtered_accel.y * 1.5
 		)
 
 		if world_accel.length() > 0.001:
@@ -286,7 +288,7 @@ func _physics_process(delta: float) -> void:
 			gravity_debugger.draw_gravity_vector(world_accel)
 
 		# Flag roll active if device acceleration departs from stationary rest
-		if absf(world_accel.length() - 9.8) > 2.0 or absf(accel.x) > 2.0 or absf(accel.y) > 2.0:
+		if absf(world_accel.length() - 9.8) > 2.0 or absf(filtered_accel.x) > 2.0 or absf(filtered_accel.y) > 2.0:
 			has_left_rest = true
 
 	else:
@@ -309,13 +311,24 @@ func _physics_process(delta: float) -> void:
 			gravity_area.gravity = 9.8
 			gravity_debugger.draw_gravity_vector(simulated_gravity)
 
-	# 2. Contain dice within screen height bounds
+	# 2. Contain dice & damp micro-wobbles so dice reach clean resting states
 	for d in dice:
 		if is_instance_valid(d) and d.visible:
 			if d.position.y > 0.7:
 				d.position.y = 0.7
 				if d.linear_velocity.y > 0.0:
 					d.linear_velocity.y = 0.0
+
+			# Micro-wobble stabilization when die slows near rest
+			var lin_speed = d.linear_velocity.length()
+			var ang_speed = d.angular_velocity.length()
+
+			if lin_speed < 0.08 and ang_speed < 0.15:
+				d.angular_velocity = d.angular_velocity.lerp(Vector3.ZERO, minf(1.0, 12.0 * delta))
+				if lin_speed < 0.02 and ang_speed < 0.02:
+					d.linear_velocity = Vector3.ZERO
+					d.angular_velocity = Vector3.ZERO
+					d.sleeping = true
 
 	# 3. Check for at-rest state transition to trigger ResultScreen
 	_check_at_rest_transition(delta)
