@@ -142,16 +142,27 @@ func _process(delta: float) -> void:
 	if is_instance_valid(blink_label):
 		blink_label.modulate.a = 1.0 if fmod(_blink_timer, 2.0) < 1.0 else 0.25
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not _is_active:
+func _input(event: InputEvent) -> void:
+	if not _is_active or not visible:
 		return
 
-	var is_trigger: bool = false
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.physical_keycode == KEY_SPACE or event.physical_keycode == KEY_ENTER or event.physical_keycode == KEY_KP_ENTER:
-			is_trigger = true
-	elif event is InputEventMouseButton and event.pressed:
-		var mouse_pos = event.position
+			dismiss_menu()
+			get_viewport().set_input_as_handled()
+			return
+
+	var is_press: bool = false
+	var press_pos: Vector2 = Vector2.ZERO
+
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		is_press = true
+		press_pos = event.position
+	elif event is InputEventScreenTouch and event.pressed:
+		is_press = true
+		press_pos = event.position
+
+	if is_press:
 		var buttons: Array[Button] = [
 			minus_d4, plus_d4,
 			minus_d6, plus_d6,
@@ -162,16 +173,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			minus_d20, plus_d20,
 			minus_d100, plus_d100
 		]
-		for btn in buttons:
-			if btn and btn.get_global_rect().has_point(mouse_pos):
-				return
-		is_trigger = true
-	elif event is InputEventScreenTouch and event.pressed:
-		is_trigger = true
 
-	if is_trigger:
-		dismiss_menu()
-		get_viewport().set_input_as_handled()
+		for btn in buttons:
+			if btn and is_instance_valid(btn) and btn.visible and btn.get_global_rect().has_point(press_pos):
+				return # Keep menu open while adjusting configuration
+
+		var vbox = get_node_or_null("MenuContainer/VBoxContainer") as Control
+		if vbox and is_instance_valid(vbox):
+			var menu_rect = vbox.get_global_rect()
+			var is_outside = not menu_rect.has_point(press_pos)
+
+			var blink = get_node_or_null("MenuContainer/VBoxContainer/BlinkPrompt") as Control
+			var is_on_blink = blink and is_instance_valid(blink) and blink.get_global_rect().has_point(press_pos)
+
+			if is_outside or is_on_blink:
+				dismiss_menu()
+				get_viewport().set_input_as_handled()
+				return
 
 func dismiss_menu() -> void:
 	if not _is_active:
