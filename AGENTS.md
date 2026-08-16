@@ -71,8 +71,14 @@ All polyhedral dice inherit from `BaseDie`:
 
 ### 2. Physical Tuning Standards ([`dice_config.gd`](no_dice/dice_config.gd))
 * **Physics Refresh Rate**: `120 Hz` (`physics/common/physics_ticks_per_second=120` in `project.godot`).
-* **Dice Mass**: `0.05 kg` ($50\text{g}$).
-* **Rotational Inertia**: `Vector3(0.0008, 0.0008, 0.0008)` (Heavy rotational stability preventing small tilt wobbles).
+* **Size-Proportional Die Masses**:
+  * **D4**: `0.005 kg` ($5.0\text{g}$)
+  * **D6**: `0.006 kg` ($6.0\text{g}$)
+  * **D8**: `0.0065 kg` ($6.5\text{g}$)
+  * **D10**: `0.0075 kg` ($7.5\text{g}$)
+  * **D12**: `0.0085 kg` ($8.5\text{g}$)
+  * **D20**: `0.010 kg` ($10.0\text{g}$)
+* **Rotational Inertia**: Scaled proportionally with mass ($I = m \cdot 0.016$, ranging from `Vector3(0.00008, 0.00008, 0.00008)` for D4 to `Vector3(0.00016, 0.00016, 0.00016)` for D20).
 * **Damping & Friction**: `LINEAR_DAMP = 0.5`, `ANGULAR_DAMP = 1.0`, `FRICTION = 0.5`.
 * **Floor Contact**: `min_y = 0.0` allows Godot's 3D physics collision solver to handle floor contact naturally with full normal force ($F_N$), preventing micro-lifting air hockey sliding.
 
