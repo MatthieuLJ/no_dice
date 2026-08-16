@@ -22,7 +22,7 @@ var at_rest_settle_timer: float = 0.0
 var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
 var has_left_rest: bool = false
-var halo_material: StandardMaterial3D = null
+var halo_material: ShaderMaterial = null
 var last_pick_debug_info: String = "None"
 
 var dragging_die: RigidBody3D = null
@@ -33,14 +33,12 @@ var filtered_accel: Vector3 = Vector3.ZERO
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
-func _get_halo_material() -> StandardMaterial3D:
+func _get_halo_material() -> ShaderMaterial:
 	if not halo_material:
-		halo_material = StandardMaterial3D.new()
-		halo_material.cull_mode = BaseMaterial3D.CULL_FRONT
-		halo_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		halo_material.albedo_color = Color(1.0, 0.85, 0.0, 1.0)
-		halo_material.grow = true
-		halo_material.grow_amount = 0.008
+		var shader: Shader = load("res://shaders/lock_glow.gdshader") as Shader
+		if shader:
+			halo_material = ShaderMaterial.new()
+			halo_material.shader = shader
 	return halo_material
 
 func _toggle_die_user_lock(die: RigidBody3D) -> void:
