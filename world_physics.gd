@@ -269,11 +269,14 @@ func _physics_process(delta: float) -> void:
 
 	if not accel.is_zero_approx():
 		# --- PURE MOBILE ACCELEROMETER GRAVITY ---
-		# Map hardware 3D acceleration vector directly to arena gravity space
+		# Direct 1-to-1 3D mapping of hardware acceleration to Godot arena space:
+		# Hardware X (Left/Right)  -> Godot X
+		# Hardware Y (Top/Bottom)  -> Godot -Y (pulls down onto felt floor in portrait orientation)
+		# Hardware Z (Front/Back)  -> Godot -Z
 		var world_accel = Vector3(
 			accel.x,
-			-accel.z,
-			-accel.y
+			-accel.y,
+			-accel.z
 		)
 
 		if world_accel.length() > 0.001:
