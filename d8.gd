@@ -145,13 +145,22 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var safe_local_pos = Vector3(clamped_x, clamped_y, clamped_z)
 		current_transform.origin = ground.to_global(safe_local_pos)
 		state.transform = current_transform
+		sleeping = false
 
-		if clamped_x != local_pos.x and signf(state.linear_velocity.x) == signf(local_pos.x):
-			state.linear_velocity.x = 0.0
-		if clamped_y != local_pos.y and signf(state.linear_velocity.y) == signf(local_pos.y):
-			state.linear_velocity.y = 0.0
-		if clamped_z != local_pos.z and signf(state.linear_velocity.z) == signf(local_pos.z):
-			state.linear_velocity.z = 0.0
+		if local_pos.x <= min_x:
+			state.linear_velocity.x = maxf(0.0, state.linear_velocity.x)
+		elif local_pos.x >= max_x:
+			state.linear_velocity.x = minf(0.0, state.linear_velocity.x)
+
+		if local_pos.y <= min_y:
+			state.linear_velocity.y = maxf(0.0, state.linear_velocity.y)
+		elif local_pos.y >= max_y:
+			state.linear_velocity.y = minf(0.0, state.linear_velocity.y)
+
+		if local_pos.z <= min_z:
+			state.linear_velocity.z = maxf(0.0, state.linear_velocity.z)
+		elif local_pos.z >= max_z:
+			state.linear_velocity.z = minf(0.0, state.linear_velocity.z)
 
 	if local_pos.y < -2.0 or local_pos.length() > 10.0:
 		var reset_transform = state.transform
