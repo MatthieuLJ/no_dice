@@ -103,10 +103,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var inset_factor = ground.get("base_inset_factor") if ground and "base_inset_factor" in ground else 1.0
 	var half_size = R
 
+	# X Bounds (East/West walls at +/- inset_factor at floor)
 	var min_x = -inset_factor + half_size
 	var max_x = inset_factor - half_size
-	var min_y = 0.0 # Allow physics engine to resolve ground contact naturally without position jitter
+
+	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
+	var min_y = 0.0
 	var max_y = 2.0 - half_size
+
+	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
 	var min_z = -(aspect_ratio * inset_factor) + half_size
 	var max_z = (aspect_ratio * inset_factor) - half_size
 

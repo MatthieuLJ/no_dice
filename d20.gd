@@ -131,10 +131,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var half_size = R
 
 	# X, Y, Z Bounds
+	# X Bounds (East/West walls at +/- inset_factor at floor)
 	var min_x = -inset_factor + half_size
 	var max_x = inset_factor - half_size
+
+	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
 	var min_y = 0.0
 	var max_y = 2.0 - half_size
+
+	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
 	var min_z = -(aspect_ratio * inset_factor) + half_size
 	var max_z = (aspect_ratio * inset_factor) - half_size
 

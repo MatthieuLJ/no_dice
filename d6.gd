@@ -4,6 +4,10 @@ extends RigidBody3D
 
 func _ready() -> void:
 	DiceConfig.apply_to_die(self)
+	if not ground:
+		var parent = get_parent()
+		if parent:
+			ground = parent.get_node_or_null("Enclosure/Ground")
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if not ground:
@@ -25,8 +29,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var min_x = -inset_factor + half_size
 	var max_x = inset_factor - half_size
 
-	# Y Bounds (Floor at 0.0, Roof at 2.0)
-	var min_y = 0.0 + half_size
+	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
+	var min_y = 0.0
 	var max_y = 2.0 - half_size
 
 	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
