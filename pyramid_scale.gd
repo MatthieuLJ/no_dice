@@ -6,7 +6,6 @@ extends StaticBody3D
 @onready var wall_east: CollisionShape3D = $Wall_East
 @onready var wall_west: CollisionShape3D = $Wall_West
 @onready var floor_mesh: MeshInstance3D = $MeshInstance3D
-@onready var roof: CollisionShape3D = $Roof
 
 
 # Camera is at Y = sqrt(2) + 1.0 = 2.4142. Apex is located just above the camera.
@@ -18,6 +17,8 @@ var _last_view_size: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	_remove_wall_meshes()
+	if has_node("Roof"):
+		get_node("Roof").queue_free()
 	get_viewport().size_changed.connect(_update_scale)
 	_update_scale()
 
@@ -95,4 +96,3 @@ func _update_scale() -> void:
 
 	# Scale floor mesh so green ground fills 100% of camera viewport
 	floor_mesh.scale = Vector3(4.0, 1.0, 4.0 * maxf(1.0, aspect_ratio))
-	roof.scale = Vector3(4.0, 1.0, 4.0 * maxf(1.0, aspect_ratio))
