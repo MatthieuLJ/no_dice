@@ -15,6 +15,9 @@ const LINEAR_DAMP: float = 0.5
 const ANGULAR_DAMP: float = 1.0
 const FRICTION: float = 0.5
 
+# Toggle software position/velocity clamping boundary guards (default: false)
+const ENABLE_SOFTWARE_CLAMPING: bool = false
+
 static func get_mass_for_die(die: RigidBody3D) -> float:
 	if not is_instance_valid(die):
 		return 0.007
