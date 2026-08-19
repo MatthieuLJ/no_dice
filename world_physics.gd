@@ -311,9 +311,24 @@ func _physics_process(delta: float) -> void:
 			gravity_area.gravity = 9.8
 			gravity_debugger.draw_gravity_vector(simulated_gravity)
 
-	# 2. Contain dice & damp micro-wobbles so dice reach clean resting states
+	# Determine if device is currently tilted away from flat (horizontal tilt magnitude > 2.0 m/s²)
+	var is_device_tilted: bool = false
+	if not raw_accel.is_zero_approx():
+		var horiz_tilt = Vector2(filtered_accel.x, filtered_accel.y).length()
+		is_device_tilted = (horiz_tilt > 2.0)
+	else:
+		var desktop_tilt = Vector2(simulated_gravity.x, simulated_gravity.z).length()
+		is_device_tilted = (desktop_tilt > 1.5)
+
+	# 2. Contain dice, handle dynamic tilt-sleeping & damp micro-wobbles
 	for d in dice:
 		if is_instance_valid(d) and d.visible:
+			if is_device_tilted and not d.freeze:
+				d.can_sleep = false
+				d.sleeping = false
+			else:
+				d.can_sleep = true
+
 			if d.position.y > 0.7:
 				d.position.y = 0.7
 				if d.linear_velocity.y > 0.0:
@@ -327,15 +342,15 @@ func _physics_process(delta: float) -> void:
 				d.angular_velocity = d.angular_velocity.lerp(Vector3.ZERO, minf(1.0, 12.0 * delta))
 
 	# 3. Check for at-rest state transition to trigger ResultScreen
-	_check_at_rest_transition(delta)
+	_check_at_rest_transition(delta, is_device_tilted)
 
-func _check_at_rest_transition(delta: float) -> void:
+func _check_at_rest_transition(delta: float, is_device_tilted: bool) -> void:
 	var start_menu = get_node_or_null("StartMenu")
 	if start_menu and start_menu.visible:
 		at_rest_settle_timer = 0.0
 		return
 
-	if roll_grace_timer > 0.0:
+	if roll_grace_timer > 0.0 or is_device_tilted:
 		at_rest_settle_timer = 0.0
 		return
 
