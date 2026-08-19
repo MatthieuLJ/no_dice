@@ -287,9 +287,10 @@ func _physics_process(delta: float) -> void:
 			gravity_area.gravity = world_accel.length()
 			gravity_debugger.draw_gravity_vector(world_accel)
 
-		# Flag roll active if device acceleration departs from stationary rest
-		if absf(world_accel.length() - 9.8) > 2.0 or absf(filtered_accel.x) > 2.0 or absf(filtered_accel.y) > 2.0:
-			has_left_rest = true
+		# Detect active physical phone shaking (shake gesture)
+		if absf(world_accel.length() - 9.8) > 6.0 and shake_cooldown <= 0.0:
+			shake_cooldown = 1.0
+			_apply_strong_random_impulse()
 
 	else:
 		# --- DESKTOP TESTING MODE (Arrow Keys) ---
@@ -298,7 +299,6 @@ func _physics_process(delta: float) -> void:
 		if input_dir.is_zero_approx():
 			simulated_gravity = simulated_gravity.lerp(Vector3(0, -9.8, 0), 5.0 * delta)
 		else:
-			has_left_rest = true
 			var tilt_x = input_dir.x * sin(max_keyboard_tilt) * 9.8
 			var tilt_z = input_dir.y * sin(max_keyboard_tilt) * 9.8
 			var tilt_y = -cos(max_keyboard_tilt) * 9.8 
