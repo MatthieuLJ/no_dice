@@ -37,17 +37,19 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var inset_factor: float = ground.get("base_inset_factor") if ground and "base_inset_factor" in ground else 1.0
 	var half_size: float = _get_die_half_size()
 
+	var debug_margin: float = 0.2
+
 	# X Bounds (East/West walls at +/- inset_factor at floor)
-	var min_x: float = -inset_factor + half_size
-	var max_x: float = inset_factor - half_size
+	var min_x: float = -inset_factor + half_size + debug_margin
+	var max_x: float = inset_factor - half_size - debug_margin
 
 	# Y Bounds (Floor at 0.0, Roof at 2.0 - allow physics solver to handle floor contact)
 	var min_y: float = 0.0
 	var max_y: float = 2.0 - half_size
 
 	# Z Bounds (North/South walls at +/- aspect_ratio * inset_factor at floor)
-	var min_z: float = -(aspect_ratio * inset_factor) + half_size
-	var max_z: float = (aspect_ratio * inset_factor) - half_size
+	var min_z: float = -(aspect_ratio * inset_factor) + half_size + debug_margin
+	var max_z: float = (aspect_ratio * inset_factor) - half_size - debug_margin
 
 	var clamped_x: float = clampf(local_pos.x, min_x, max_x)
 	var clamped_y: float = clampf(local_pos.y, min_y, max_y)
