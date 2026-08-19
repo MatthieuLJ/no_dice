@@ -19,6 +19,13 @@ func _ready() -> void:
 	_remove_wall_meshes()
 	if has_node("Roof"):
 		get_node("Roof").queue_free()
+
+	# Slick, smooth physics material for arena walls (friction 0.05, subtle bounce 0.15)
+	var wall_phys_mat = PhysicsMaterial.new()
+	wall_phys_mat.friction = 0.05
+	wall_phys_mat.bounce = 0.15
+	physics_material_override = wall_phys_mat
+
 	get_viewport().size_changed.connect(_update_scale)
 	_update_scale()
 
