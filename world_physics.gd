@@ -269,6 +269,7 @@ func _physics_process(delta: float) -> void:
 
 	# 1. Check for Mobile Sensors
 	var raw_accel = Input.get_accelerometer()
+	var active_world_accel: Vector3 = Vector3.ZERO
 
 	if not raw_accel.is_zero_approx():
 		# Low-pass filter (25 Hz) to smooth high-frequency hardware sensor noise/jitter
@@ -277,19 +278,19 @@ func _physics_process(delta: float) -> void:
 		else:
 			filtered_accel = filtered_accel.lerp(raw_accel, minf(1.0, 25.0 * delta))
 
-		var world_accel = Vector3(
+		active_world_accel = Vector3(
 			filtered_accel.x * 1.5,
 			filtered_accel.z,
 			-filtered_accel.y * 1.5
 		)
 
-		if world_accel.length() > 0.001:
-			gravity_area.gravity_direction = world_accel.normalized()
-			gravity_area.gravity = world_accel.length()
-			gravity_debugger.draw_gravity_vector(world_accel)
+		if active_world_accel.length() > 0.001:
+			gravity_area.gravity_direction = active_world_accel.normalized()
+			gravity_area.gravity = active_world_accel.length()
+			gravity_debugger.draw_gravity_vector(active_world_accel)
 
 		# Detect active physical phone shaking (shake gesture)
-		if absf(world_accel.length() - 9.8) > 6.0 and shake_cooldown <= 0.0:
+		if absf(active_world_accel.length() - 9.8) > 6.0 and shake_cooldown <= 0.0:
 			shake_cooldown = 1.0
 			_apply_strong_random_impulse()
 
@@ -307,37 +308,44 @@ func _physics_process(delta: float) -> void:
 			var target_grav = Vector3(tilt_x, tilt_y, tilt_z)
 			simulated_gravity = simulated_gravity.lerp(target_grav, 8.0 * delta)
 
+		active_world_accel = simulated_gravity
+
 		if simulated_gravity.length() > 0.001:
 			gravity_area.gravity_direction = simulated_gravity.normalized()
 			gravity_area.gravity = 9.8
 			gravity_debugger.draw_gravity_vector(simulated_gravity)
 
-	# Determine if device is currently tilted away from flat (horizontal tilt magnitude > 2.0 m/s²)
+	# Determine if device is currently tilted away from flat or flipped upside down
 	var is_device_tilted: bool = false
 	if not raw_accel.is_zero_approx():
-		var horiz_tilt = Vector2(filtered_accel.x, filtered_accel.y).length()
-		is_device_tilted = (horiz_tilt > 2.0)
+		var horiz_tilt = Vector2(active_world_accel.x, active_world_accel.z).length()
+		var is_upside_down = active_world_accel.y > 1.0
+		is_device_tilted = (horiz_tilt > 0.8) or is_upside_down
 	else:
 		var desktop_tilt = Vector2(simulated_gravity.x, simulated_gravity.z).length()
-		is_device_tilted = (desktop_tilt > 1.5)
+		var desktop_upside_down = simulated_gravity.y > 1.0
+		is_device_tilted = (desktop_tilt > 0.8) or desktop_upside_down
 
 	_logcat_timer += delta
 	if _logcat_timer >= 1.0:
 		_logcat_timer = 0.0
 		print("[NODICE_LOGCAT] Accel raw=(%.2f,%.2f,%.2f) world=(%.2f,%.2f,%.2f) Tilted:%s" % [
 			raw_accel.x, raw_accel.y, raw_accel.z,
-			filtered_accel.x, filtered_accel.y, filtered_accel.z,
+			active_world_accel.x, active_world_accel.y, active_world_accel.z,
 			str(is_device_tilted)
 		])
 
-	# 2. Contain dice, handle dynamic tilt-sleeping & damp micro-wobbles
+	# 2. Contain dice, handle dynamic tilt-sleeping & unfreezing
 	for d in dice:
 		if is_instance_valid(d) and d.visible:
-			if is_device_tilted and not d.freeze:
+			var is_user_locked = bool(d.get_meta("is_user_locked", false))
+			if is_device_tilted and not is_user_locked:
+				d.freeze = false
 				d.can_sleep = false
 				d.sleeping = false
 			else:
-				d.can_sleep = true
+				if not is_user_locked:
+					d.can_sleep = true
 
 			if d.position.y > 0.7:
 				d.position.y = 0.7

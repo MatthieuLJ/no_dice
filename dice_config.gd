@@ -13,7 +13,7 @@ const DIE_WEIGHTS: Dictionary = {
 
 const LINEAR_DAMP: float = 0.5
 const ANGULAR_DAMP: float = 1.0
-const FRICTION: float = 0.5
+const FRICTION: float = 0.05
 
 # Toggle software position/velocity clamping boundary guards (default: false)
 const ENABLE_SOFTWARE_CLAMPING: bool = false
