@@ -149,10 +149,6 @@ shape = SubResource("BoxShape3D_pg65m")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.05, 0.4, 0)
 shape = SubResource("BoxShape3D_xbu7s")
 
-[node name="Roof" type="CollisionShape3D" parent="Enclosure/Ground" unique_id=1644655478]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-shape = SubResource("BoxShape3D_2nkai")
-
 [node name="GravityArea" type="Area3D" parent="Enclosure" unique_id=2130850354]
 gravity_space_override = 3
 

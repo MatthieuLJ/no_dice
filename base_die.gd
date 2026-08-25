@@ -77,7 +77,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 				state.linear_velocity.z = minf(0.0, state.linear_velocity.z)
 
 	# 2. Emergency fallback recovery if die clips far out of arena
-	if local_pos.y < -2.0 or local_pos.length() > 10.0:
+	if local_pos.y < -2.0 or local_pos.length() > 30.0:
 		var reset_transform: Transform3D = state.transform
 		reset_transform.origin = ground.to_global(Vector3(-0.25, 0.5, 0.1))
 		state.transform = reset_transform

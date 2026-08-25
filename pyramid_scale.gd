@@ -53,8 +53,15 @@ func _update_scale() -> void:
 	var base_x = base_inset_factor # 1.0
 	var base_z = aspect_ratio * base_inset_factor # aspect_ratio * 1.0
 
+	# Dynamically query active 3D camera to compute exact height & steep wall geometry
+	var main_cam = get_viewport().get_camera_3d()
+	var current_cam_height = camera_height
+	if main_cam:
+		var half_fov_rad = deg_to_rad(main_cam.fov / 2.0)
+		current_cam_height = 1.0 / tan(half_fov_rad)
+
 	# Apex point directly above camera: (0, apex_y, 0)
-	var apex_y = camera_height + apex_margin_above_camera # ~3.0142m
+	var apex_y = current_cam_height + apex_margin_above_camera # ~12.03m
 	var thickness = 0.1
 
 	# Full slant lengths from floor base (Y=0) to apex (Y=apex_y)
@@ -100,6 +107,14 @@ func _update_scale() -> void:
 
 	wall_north.scale.x = maxf(2.0, (1.0 / aspect_ratio) * 3.0)
 	wall_south.scale.x = maxf(2.0, (1.0 / aspect_ratio) * 3.0)
+
+	# 3. Scale GravityArea to enclose 100% of 3D room up past camera (Y = 15.0m)
+	var grav_area = get_parent().get_node_or_null("GravityArea") as Area3D
+	if grav_area:
+		var grav_col = grav_area.get_node_or_null("CollisionShape3D") as CollisionShape3D
+		if grav_col:
+			grav_col.position = Vector3(0.0, y_mid, 0.0)
+			grav_col.scale = Vector3((base_x * 4.0), apex_y * 2.0, (base_z * 4.0))
 
 	# Scale floor mesh so green ground fills 100% of camera viewport
 	floor_mesh.scale = Vector3(4.0, 1.0, 4.0 * maxf(1.0, aspect_ratio))

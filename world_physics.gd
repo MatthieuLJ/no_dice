@@ -346,12 +346,6 @@ func _physics_process(delta: float) -> void:
 			else:
 				if not is_user_locked:
 					d.can_sleep = true
-
-			if d.position.y > 0.7:
-				d.position.y = 0.7
-				if d.linear_velocity.y > 0.0:
-					d.linear_velocity.y = 0.0
-
 			# Micro-wobble stabilization when die slows near rest
 			var lin_speed = d.linear_velocity.length()
 			var ang_speed = d.angular_velocity.length()
