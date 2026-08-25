@@ -19,6 +19,7 @@ var simulated_gravity: Vector3 = Vector3(0, -9.8, 0)
 var shake_cooldown: float = 0.0
 var roll_grace_timer: float = 0.0
 var at_rest_settle_timer: float = 0.0
+var _logcat_timer: float = 0.0
 var dice: Array[RigidBody3D] = []
 var has_shown_result_for_current_roll: bool = false
 var has_left_rest: bool = false
@@ -319,6 +320,15 @@ func _physics_process(delta: float) -> void:
 	else:
 		var desktop_tilt = Vector2(simulated_gravity.x, simulated_gravity.z).length()
 		is_device_tilted = (desktop_tilt > 1.5)
+
+	_logcat_timer += delta
+	if _logcat_timer >= 1.0:
+		_logcat_timer = 0.0
+		print("[NODICE_LOGCAT] Accel raw=(%.2f,%.2f,%.2f) world=(%.2f,%.2f,%.2f) Tilted:%s" % [
+			raw_accel.x, raw_accel.y, raw_accel.z,
+			filtered_accel.x, filtered_accel.y, filtered_accel.z,
+			str(is_device_tilted)
+		])
 
 	# 2. Contain dice, handle dynamic tilt-sleeping & damp micro-wobbles
 	for d in dice:
