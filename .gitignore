@@ -1,3 +1,13 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+*.import
+*.uid
+
+# Build artifacts & logs
+*.apk
+*.apk.idsig
+*.pck
+log.txt
+package.json
+package-lock.json
