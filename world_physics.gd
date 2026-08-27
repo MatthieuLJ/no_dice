@@ -114,8 +114,17 @@ func _ready() -> void:
 	if d20: dice.append(d20)
 
 	var start_menu = get_node_or_null("StartMenu")
-	if start_menu and start_menu.has_signal("menu_dismissed"):
-		start_menu.menu_dismissed.connect(_on_start_menu_dismissed)
+	if start_menu:
+		if start_menu.has_signal("menu_dismissed"):
+			start_menu.menu_dismissed.connect(_on_start_menu_dismissed)
+		if start_menu.has_signal("selection_changed"):
+			start_menu.selection_changed.connect(_on_menu_selection_changed)
+		# Initialize 3D dice in background to match initial menu selection
+		if "dice_counts" in start_menu:
+			set_multi_dice_counts(start_menu.get("dice_counts"))
+			for d in dice:
+				if is_instance_valid(d):
+					d.freeze = true
 
 	if result_screen:
 		if result_screen.has_signal("roll_again_requested"):
@@ -528,10 +537,22 @@ func _on_main_menu_requested() -> void:
 	has_shown_result_for_current_roll = false
 	has_left_rest = false
 	var start_menu = get_node_or_null("StartMenu")
-	if start_menu and start_menu.has_method("show_menu"):
-		start_menu.call("show_menu")
-	elif start_menu:
-		start_menu.visible = true
+	if start_menu:
+		if start_menu.has_method("sync_from_dice"):
+			start_menu.call("sync_from_dice", dice)
+		if start_menu.has_method("show_menu"):
+			start_menu.call("show_menu")
+		else:
+			start_menu.visible = true
+
+func _on_menu_selection_changed(counts: Dictionary) -> void:
+	set_multi_dice_counts(counts)
+	# Keep background 3D dice frozen in preview layout while main menu is active
+	for d in dice:
+		if is_instance_valid(d):
+			d.linear_velocity = Vector3.ZERO
+			d.angular_velocity = Vector3.ZERO
+			d.freeze = true
 
 
 func _unhandled_input(event: InputEvent) -> void:

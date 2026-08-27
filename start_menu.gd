@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 signal menu_dismissed(dice_counts: Dictionary)
+signal selection_changed(dice_counts: Dictionary)
 
 var dice_counts: Dictionary = {
 	"d4": 0,
@@ -79,6 +80,7 @@ func _on_d10_mode_pressed() -> void:
 	dice_counts["d10_mode"] = "high_10" if is_d10_high_10 else "low_0"
 	if d10_mode_button:
 		d10_mode_button.text = "High 10" if is_d10_high_10 else "Low 0"
+	selection_changed.emit(dice_counts)
 
 func _connect_row(type_key: String, minus_btn: Button, plus_btn: Button) -> void:
 	if minus_btn:
@@ -98,6 +100,40 @@ func _on_count_change(type_key: String, delta: int) -> void:
 		var new_val: int = max(0, current + delta)
 		dice_counts[type_key] = new_val
 
+	_update_all_displays()
+	selection_changed.emit(dice_counts)
+
+func sync_from_dice(active_dice: Array) -> void:
+	var counts: Dictionary = {
+		"d4": 0, "d6": 0, "d8": 0, "d10": 0, "d12": 0, "d20": 0, "d100": 0, "d10_mode": "low_0"
+	}
+	var d10_tens_count: int = 0
+	var d10_single_count: int = 0
+
+	for d in active_dice:
+		if not is_instance_valid(d) or not d.visible or d.process_mode == PROCESS_MODE_DISABLED:
+			continue
+		var script_path = d.get_script().resource_path.to_lower() if d.get_script() else ""
+		if "d4.gd" in script_path: counts["d4"] += 1
+		elif "d6.gd" in script_path: counts["d6"] += 1
+		elif "d8.gd" in script_path: counts["d8"] += 1
+		elif "d12.gd" in script_path: counts["d12"] += 1
+		elif "d20.gd" in script_path: counts["d20"] += 1
+		elif "d10.gd" in script_path:
+			var mode: String = str(d.get("current_mode")) if "current_mode" in d else "low_0"
+			if mode == "tens":
+				d10_tens_count += 1
+			else:
+				if mode == "high_10":
+					counts["d10_mode"] = "high_10"
+				d10_single_count += 1
+
+	var d100_pairs: int = min(d10_tens_count, d10_single_count)
+	counts["d100"] = d100_pairs
+	counts["d10"] = d10_single_count - d100_pairs
+
+	is_d10_high_10 = (counts["d10_mode"] == "high_10")
+	dice_counts = counts
 	_update_all_displays()
 
 func _update_all_displays() -> void:
@@ -129,10 +165,15 @@ func _update_all_displays() -> void:
 			btn.disabled = (int(dice_counts.get(key, 0)) <= 0)
 
 	if is_instance_valid(blink_label):
-		if at_max:
+		if total == 0:
+			blink_label.text = "SELECT AT LEAST 1 DIE"
+			blink_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
+		elif at_max:
 			blink_label.text = "TAP TO ROLL (MAX 30 DICE)"
+			blink_label.remove_theme_color_override("font_color")
 		else:
 			blink_label.text = "TAP TO ROLL"
+			blink_label.remove_theme_color_override("font_color")
 
 func get_total_count() -> int:
 	var total: int = 0
@@ -199,8 +240,9 @@ func dismiss_menu() -> void:
 	if not _is_active:
 		return
 	if get_total_count() == 0:
-		dice_counts["d6"] = 1
+		# Block exiting main menu when zero dice are selected
 		_update_all_displays()
+		return
 
 	_is_active = false
 	dice_counts["d10_mode"] = "high_10" if is_d10_high_10 else "low_0"
@@ -220,3 +262,4 @@ func show_menu() -> void:
 		blur_rect.modulate.a = 1.0
 	if menu_container:
 		menu_container.modulate.a = 1.0
+	selection_changed.emit(dice_counts)
