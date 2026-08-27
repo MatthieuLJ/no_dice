@@ -4,14 +4,14 @@ signal roll_again_requested
 signal main_menu_requested
 signal lock_flat_and_reroll_requested
 
-@onready var blur_rect: ColorRect = $BlurRect
-@onready var title_label: Label = $CenterContainer/PanelContainer/VBox/TitleLabel
-@onready var counts_label: Label = get_node_or_null("CenterContainer/PanelContainer/VBox/CountsLabel")
-@onready var stats_label: Label = $CenterContainer/PanelContainer/VBox/StatsLabel
-@onready var histogram_draw: Control = $CenterContainer/PanelContainer/VBox/HistogramContainer/HistogramDrawer
-@onready var roll_again_btn: Button = $CenterContainer/PanelContainer/VBox/ButtonRow/RollAgainButton
-@onready var lock_flat_btn: Button = get_node_or_null("CenterContainer/PanelContainer/VBox/ButtonRow/LockFlatButton")
-@onready var main_menu_btn: Button = $CenterContainer/PanelContainer/VBox/ButtonRow/MainMenuButton
+@onready var blur_rect: ColorRect = get_node_or_null("BlurRect") as ColorRect
+@onready var title_label: Label = find_child("TitleLabel", true, false) as Label
+@onready var counts_label: Label = find_child("CountsLabel", true, false) as Label
+@onready var stats_label: Label = find_child("StatsLabel", true, false) as Label
+@onready var histogram_draw: Control = find_child("HistogramDrawer", true, false) as Control
+@onready var roll_again_btn: Button = find_child("RollAgainButton", true, false) as Button
+@onready var lock_flat_btn: Button = find_child("LockFlatButton", true, false) as Button
+@onready var main_menu_btn: Button = find_child("MainMenuButton", true, false) as Button
 
 var is_active: bool = false
 
@@ -67,7 +67,13 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 	if count_parts.size() == 1:
 		counts_text = "Count of " + count_parts[0]
 	elif count_parts.size() > 1:
-		counts_text = "Counts: " + ", ".join(count_parts)
+		if count_parts.size() > 5:
+			var mid: int = int(ceil(count_parts.size() / 2.0))
+			var line1: String = ", ".join(count_parts.slice(0, mid))
+			var line2: String = ", ".join(count_parts.slice(mid))
+			counts_text = "Counts: " + line1 + "\n" + line2
+		else:
+			counts_text = "Counts: " + ", ".join(count_parts)
 
 	if counts_label:
 		counts_label.text = counts_text

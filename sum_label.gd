@@ -1,7 +1,14 @@
 extends Label
 
-func _process(_delta: float) -> void:
+func _ready() -> void:
+	visible = DiceConfig.ENABLE_DEBUG_LABEL
 	if not visible:
+		set_process(false)
+
+func _process(_delta: float) -> void:
+	if not visible or not DiceConfig.ENABLE_DEBUG_LABEL:
+		visible = false
+		set_process(false)
 		return
 
 	var tree = get_tree()

@@ -1,7 +1,16 @@
 extends Label
 
-func _process(_delta: float) -> void:
+@export var enabled: bool = true
+
+func _ready() -> void:
+	visible = enabled and DiceConfig.ENABLE_DEBUG_LABEL
 	if not visible:
+		set_process(false)
+
+func _process(_delta: float) -> void:
+	if not (enabled and DiceConfig.ENABLE_DEBUG_LABEL and visible):
+		visible = false
+		set_process(false)
 		return
 
 	var grav = Input.get_gravity()

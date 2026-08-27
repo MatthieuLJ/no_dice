@@ -4,6 +4,8 @@ var pmf: Dictionary = {}
 var target_sum: int = -1
 var is_broken: bool = false
 
+var pixel_font: Font = load("res://fonts/PressStart2P-Regular.ttf")
+
 func set_data(p_pmf: Dictionary, p_target_sum: int, p_is_broken: bool) -> void:
 	pmf = p_pmf
 	target_sum = p_target_sum
@@ -19,10 +21,11 @@ func _draw() -> void:
 	var bg_rect = Rect2(Vector2.ZERO, rect_size)
 	draw_rect(bg_rect, Color(0.4, 0.4, 0.45, 0.25), false, 1.5)
 
+	var font: Font = pixel_font if pixel_font else get_theme_default_font()
+
 	if is_broken:
-		var font = get_theme_default_font()
 		if font:
-			draw_string(font, Vector2(rect_size.x * 0.5 - 60, rect_size.y * 0.5), "Broken Die!", HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(1.0, 0.3, 0.3))
+			draw_string(font, Vector2(rect_size.x * 0.5 - 60, rect_size.y * 0.5), "Broken Die!", HORIZONTAL_ALIGNMENT_CENTER, -1, 18, Color(1.0, 0.3, 0.3))
 		return
 
 	if pmf.is_empty():
@@ -52,8 +55,6 @@ func _draw() -> void:
 	var bar_total_w: float = chart_w / float(max(1, num_bars))
 	var bar_gap: float = clampf(bar_total_w * 0.15, 1.0, 4.0)
 	var bar_w: float = max(1.0, bar_total_w - bar_gap)
-
-	var font = get_theme_default_font()
 
 	# Grid lines (25%, 50%, 75%, 100% of max_prob)
 	for i in range(1, 4):

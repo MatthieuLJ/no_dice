@@ -15,39 +15,45 @@ var dice_counts: Dictionary = {
 
 var is_d10_high_10: bool = false
 
-@onready var blur_rect: ColorRect = $BlurRect
-@onready var menu_container: Control = $MenuContainer
-@onready var blink_label: Label = $MenuContainer/VBoxContainer/BlinkPrompt
+@onready var blur_rect: ColorRect = get_node_or_null("BlurRect") as ColorRect
+@onready var menu_container: Control = get_node_or_null("MenuContainer") as Control
+@onready var blink_label: Label = find_child("BlinkPrompt", true, false) as Label
 
-@onready var label_d4: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD4/CountLabel")
-@onready var minus_d4: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD4/MinusButton")
-@onready var plus_d4: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD4/PlusButton")
+@onready var label_d4: Label = _find_sub_node("RowD4", "CountLabel") as Label
+@onready var minus_d4: Button = _find_sub_node("RowD4", "MinusButton") as Button
+@onready var plus_d4: Button = _find_sub_node("RowD4", "PlusButton") as Button
 
-@onready var label_d6: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD6/CountLabel")
-@onready var minus_d6: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD6/MinusButton")
-@onready var plus_d6: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD6/PlusButton")
+@onready var label_d6: Label = _find_sub_node("RowD6", "CountLabel") as Label
+@onready var minus_d6: Button = _find_sub_node("RowD6", "MinusButton") as Button
+@onready var plus_d6: Button = _find_sub_node("RowD6", "PlusButton") as Button
 
-@onready var label_d8: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD8/CountLabel")
-@onready var minus_d8: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD8/MinusButton")
-@onready var plus_d8: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD8/PlusButton")
+@onready var label_d8: Label = _find_sub_node("RowD8", "CountLabel") as Label
+@onready var minus_d8: Button = _find_sub_node("RowD8", "MinusButton") as Button
+@onready var plus_d8: Button = _find_sub_node("RowD8", "PlusButton") as Button
 
-@onready var label_d10: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD10/CountLabel")
-@onready var minus_d10: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD10/MinusButton")
-@onready var plus_d10: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD10/PlusButton")
+@onready var label_d10: Label = _find_sub_node("RowD10", "CountLabel") as Label
+@onready var minus_d10: Button = _find_sub_node("RowD10", "MinusButton") as Button
+@onready var plus_d10: Button = _find_sub_node("RowD10", "PlusButton") as Button
 
-@onready var d10_mode_button: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/D10ModeRow/D10ModeButton")
+@onready var d10_mode_button: Button = find_child("D10ModeButton", true, false) as Button
 
-@onready var label_d12: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD12/CountLabel")
-@onready var minus_d12: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD12/MinusButton")
-@onready var plus_d12: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD12/PlusButton")
+@onready var label_d12: Label = _find_sub_node("RowD12", "CountLabel") as Label
+@onready var minus_d12: Button = _find_sub_node("RowD12", "MinusButton") as Button
+@onready var plus_d12: Button = _find_sub_node("RowD12", "PlusButton") as Button
 
-@onready var label_d20: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD20/CountLabel")
-@onready var minus_d20: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD20/MinusButton")
-@onready var plus_d20: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD20/PlusButton")
+@onready var label_d20: Label = _find_sub_node("RowD20", "CountLabel") as Label
+@onready var minus_d20: Button = _find_sub_node("RowD20", "MinusButton") as Button
+@onready var plus_d20: Button = _find_sub_node("RowD20", "PlusButton") as Button
 
-@onready var label_d100: Label = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/CountLabel")
-@onready var minus_d100: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/MinusButton")
-@onready var plus_d100: Button = get_node_or_null("MenuContainer/VBoxContainer/ConfigContainer/RowD100/PlusButton")
+@onready var label_d100: Label = _find_sub_node("RowD100", "CountLabel") as Label
+@onready var minus_d100: Button = _find_sub_node("RowD100", "MinusButton") as Button
+@onready var plus_d100: Button = _find_sub_node("RowD100", "PlusButton") as Button
+
+func _find_sub_node(row_name: String, node_name: String) -> Node:
+	var row = find_child(row_name, true, false)
+	if row:
+		return row.get_node_or_null(node_name)
+	return null
 
 var _is_active: bool = true
 var _blink_timer: float = 0.0
@@ -126,7 +132,7 @@ func _update_all_displays() -> void:
 		if at_max:
 			blink_label.text = "TAP TO ROLL (MAX 30 DICE)"
 		else:
-			blink_label.text = "PRESS SPACE OR TAP TO ROLL"
+			blink_label.text = "TAP TO ROLL"
 
 func get_total_count() -> int:
 	var total: int = 0
@@ -145,12 +151,6 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not _is_active or not visible:
 		return
-
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.physical_keycode == KEY_SPACE or event.physical_keycode == KEY_ENTER or event.physical_keycode == KEY_KP_ENTER:
-			dismiss_menu()
-			get_viewport().set_input_as_handled()
-			return
 
 	var is_press: bool = false
 	var press_pos: Vector2 = Vector2.ZERO
@@ -178,12 +178,12 @@ func _input(event: InputEvent) -> void:
 			if btn and is_instance_valid(btn) and btn.visible and btn.get_global_rect().has_point(press_pos):
 				return # Keep menu open while adjusting configuration
 
-		var vbox = get_node_or_null("MenuContainer/VBoxContainer") as Control
-		if vbox and is_instance_valid(vbox):
-			var menu_rect = vbox.get_global_rect()
-			var is_outside = not menu_rect.has_point(press_pos)
+		var panel = find_child("PanelContainer", true, false) as Control
+		if panel and is_instance_valid(panel):
+			var panel_rect = panel.get_global_rect()
+			var is_outside = not panel_rect.has_point(press_pos)
 
-			var blink = get_node_or_null("MenuContainer/VBoxContainer/BlinkPrompt") as Control
+			var blink = find_child("BlinkPrompt", true, false) as Control
 			var is_on_blink = blink and is_instance_valid(blink) and blink.get_global_rect().has_point(press_pos)
 
 			if is_outside or is_on_blink:

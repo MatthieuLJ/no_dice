@@ -1,39 +1,89 @@
-[gd_scene load_steps=8 format=3 uid="uid://b8k10u2x82y7"]
+[gd_scene load_steps=13 format=3 uid="uid://b8k10u2x82y7"]
 
 [ext_resource type="Script" path="res://result_screen.gd" id="1_result"]
 [ext_resource type="Shader" path="res://shaders/screen_blur.gdshader" id="2_blur"]
 [ext_resource type="Script" path="res://histogram_drawer.gd" id="3_histo"]
+[ext_resource type="FontFile" path="res://fonts/PressStart2P-Regular.ttf" id="4_font"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("2_blur")
 shader_parameter/blur_amount = 3.5
 shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_glass"]
-bg_color = Color(0, 0, 0, 0)
-draw_center = false
-border_width_left = 0
-border_width_top = 0
-border_width_right = 0
-border_width_bottom = 0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.02, 0.08, 0.04, 0.9)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.2, 1, 0.4, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0.4, 0.1, 0.6)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0.04, 0.16, 0.08, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 1, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.3, 0.1, 0.5)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.08, 0.28, 0.14, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.4, 1, 0.6, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.2, 1, 0.4, 0.6)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+bg_color = Color(0.02, 0.1, 0.05, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.8, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
+font = ExtResource("4_font")
 font_size = 40
 font_color = Color(0.2, 1, 0.4, 1)
-shadow_size = 8
-shadow_color = Color(0, 0.4, 0.1, 0.8)
-
-[sub_resource type="LabelSettings" id="LabelSettings_stats"]
-font_size = 40
-font_color = Color(0.3, 1, 0.5, 1)
-shadow_size = 4
-shadow_color = Color(0, 0.4, 0.1, 0.8)
+shadow_size = 12
+shadow_color = Color(0, 0.4, 0.1, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_counts"]
-font_size = 40
+font = ExtResource("4_font")
+font_size = 24
 font_color = Color(1, 0.85, 0.2, 1)
-shadow_size = 4
+shadow_size = 6
 shadow_color = Color(0.4, 0.3, 0, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_stats"]
+font = ExtResource("4_font")
+font_size = 24
+font_color = Color(0.3, 1, 0.5, 1)
+shadow_size = 6
+shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [node name="ResultScreen" type="CanvasLayer"]
 layer = 90
@@ -55,65 +105,85 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
-custom_minimum_size = Vector2(800, 680)
+custom_minimum_size = Vector2(880, 1400)
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_glass")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer/PanelContainer/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
 alignment = 1
 
-[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
+[node name="TitleLabel" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox"]
 layout_mode = 2
 text = "Sum: 0"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
-[node name="CountsLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
+[node name="CountsLabel" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox"]
 layout_mode = 2
 text = "Count of 6s: 0"
 label_settings = SubResource("LabelSettings_counts")
 horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="StatsLabel" type="Label" parent="CenterContainer/PanelContainer/VBox"]
+[node name="StatsLabel" type="Label" parent="CenterContainer/PanelContainer/Margin/VBox"]
 layout_mode = 2
 text = "P(Sum ≥ 0): 0%"
 label_settings = SubResource("LabelSettings_stats")
 horizontal_alignment = 1
 
-[node name="HistogramContainer" type="MarginContainer" parent="CenterContainer/PanelContainer/VBox"]
-custom_minimum_size = Vector2(740, 360)
+[node name="HistogramContainer" type="MarginContainer" parent="CenterContainer/PanelContainer/Margin/VBox"]
+custom_minimum_size = Vector2(800, 560)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 5
 
-[node name="HistogramDrawer" type="Control" parent="CenterContainer/PanelContainer/VBox/HistogramContainer"]
+[node name="HistogramDrawer" type="Control" parent="CenterContainer/PanelContainer/Margin/VBox/HistogramContainer"]
 layout_mode = 2
 script = ExtResource("3_histo")
 
-[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/VBox"]
+[node name="ButtonRow" type="HBoxContainer" parent="CenterContainer/PanelContainer/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 20
 alignment = 1
 
-[node name="RollAgainButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(250, 64)
+[node name="RollAgainButton" type="Button" parent="CenterContainer/PanelContainer/Margin/VBox/ButtonRow"]
+custom_minimum_size = Vector2(260, 90)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "Roll Again"
 
-[node name="LockFlatButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
+[node name="LockFlatButton" type="Button" parent="CenterContainer/PanelContainer/Margin/VBox/ButtonRow"]
 visible = false
-custom_minimum_size = Vector2(250, 64)
+custom_minimum_size = Vector2(260, 90)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "Lock Flat & Reroll"
 
-[node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/VBox/ButtonRow"]
-custom_minimum_size = Vector2(250, 64)
+[node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/Margin/VBox/ButtonRow"]
+custom_minimum_size = Vector2(260, 90)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "Main Menu"

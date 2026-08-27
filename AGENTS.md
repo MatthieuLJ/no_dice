@@ -19,6 +19,7 @@ The game uses specifically Godot 4.7 currently.
    - Dice roll dynamically in 3D inside the camera view frustum.
    - Real-time mobile accelerometer hardware inputs (`Input.get_accelerometer()`) map device tilt directly to simulated gravity in the 3D enclosure.
    - On desktop, Spacebar or directional keys apply calibrated physical roll impulses.
+   - No artificial forces (acceleration or rotation) should ever be added, only "real" physics should be moving the dice.
    - **Locking Mechanics**: After at least one roll, tapping an individual stationary die toggles its locked state (`is_user_locked`). Locked dice freeze in place and display a soft, blurry 3D spatial glow highlight ([`shaders/lock_glow.gdshader`](no_dice/shaders/lock_glow.gdshader)).
    - **Dragging Mechanics**: Dragging a die translates it across the ground plane without re-triggering the result screen.
 
@@ -27,8 +28,8 @@ The game uses specifically Godot 4.7 currently.
    - **Broken Die Detection**: If a die rests leaning or cocked on an edge (`is_flat == false` via normal dot-product), the result screen reports "BROKEN DIE" and displays a **Lock Flat & Reroll** button.
    - **Probability Statistics**: For flat rolls, displays the total sum, individual face breakdown, and exact Probability Mass Function ($P(\text{Sum} \ge X)$) drawn via [`histogram_drawer.gd`](no_dice/histogram_drawer.gd).
    - **Reroll / Continuation**:
-     - **Roll Again**: Hides the result screen and unlocks unlocked dice for another roll.
-     - **Lock Flat & Reroll**: Locks all dice currently resting flat and leaves cocked/leaning dice ready to re-roll.
+	 - **Roll Again**: Hides the result screen and unlocks unlocked dice for another roll.
+	 - **Lock Flat & Reroll**: Locks all dice currently resting flat and leaves cocked/leaning dice ready to re-roll.
 
 ---
 
@@ -79,10 +80,24 @@ All polyhedral dice inherit from `BaseDie`:
   * **D12**: `0.0085 kg` ($8.5\text{g}$)
   * **D20**: `0.010 kg` ($10.0\text{g}$)
 * **Rotational Inertia**: Scaled proportionally with mass ($I = m \cdot 0.016$, ranging from `Vector3(0.00008, 0.00008, 0.00008)` for D4 to `Vector3(0.00016, 0.00016, 0.00016)` for D20).
-* **Damping & Friction**: `LINEAR_DAMP = 0.5`, `ANGULAR_DAMP = 1.0`, `FRICTION = 0.5`.
+* **Damping, Friction & Restitution**: `LINEAR_DAMP = 0.15`, `ANGULAR_DAMP = 0.20`, `FRICTION = 0.60`, `BOUNCE = 0.35`.
+* **Pure Physical Motion**: No artificial forces (acceleration or rotation) or fake shake thresholds. 100% driven by real 3D accelerometer inertial forces and Gyroscope Coriolis/Centrifugal forces.
 * **Floor Contact**: `min_y = 0.0` allows Godot's 3D physics collision solver to handle floor contact naturally with full normal force ($F_N$), preventing micro-lifting air hockey sliding.
 
-### 3. Shader System
+### 3. Dynamic Dice Scaling ($1 \le N \le 30$)
+* **Count-Dependent Scaling**: Calculates linear scale factor via `DiceConfig.get_scale_for_count(N)`:
+  * **$N = 1$ die**: **$2.5\times$ base size**.
+  * **$N = 30$ dice**: **$1.0\times$ base size**.
+* **Godot 4 Child Node Scaling**: Scales child `CollisionShape3D` and `MeshInstance3D` nodes directly (`col_shape.scale` / `mesh_inst.scale`) to preserve 3D physics solver compatibility.
+* **Metadata Half-Size Detection**: `BaseDie._get_die_half_size()` reads stored `die_scale` metadata (`get_meta("die_scale", 1.0)`) so collision bounds scale accurately across all polyhedral classes (`D4`, `D6`, `D8`, `D10`, `D12`, `D20`).
+
+### 4. Retro Arcade UI & Typography Design System
+* **8-Bit Retro Font Integration**: Built with [`fonts/PressStart2P-Regular.ttf`](no_dice/fonts/PressStart2P-Regular.ttf) under SIL Open Font License 1.1 ([`fonts/OFL.txt`](no_dice/fonts/OFL.txt)). Applied across titles, config labels, count breakdowns, action buttons, and PMF canvas charts.
+* **80% Screen Bounds**: Main Menu (`start_menu.tscn`) and Result Screen (`result_screen.tscn`) expand to 80% screen bounds ($880 \times 1400\text{px}$) with dark translucent glass containers (`Color(0.02, 0.08, 0.04, 0.9)`) and 4px neon green borders (`Color(0.2, 1.0, 0.4)`).
+* **Tap-Outside Roll Dismissal**: Tapping anywhere outside the menu card dismisses the menu and triggers the roll.
+* **Multiline Count Breakdown**: Automatically splits face counts across two lines in `result_screen.gd` when `count_parts.size() > 5`.
+
+### 5. Shader System
 * **Locked Die Aura ([`shaders/lock_glow.gdshader`](no_dice/shaders/lock_glow.gdshader))**: 3D spatial additive glow shader applied to `mesh_inst.material_overlay`. Uses `render_mode cull_front, unshaded, blend_add, depth_draw_never` to expand a soft, blurry golden aura around locked dice without obscuring front face textures.
 * **Glassmorphism Blur ([`shaders/screen_blur.gdshader`](no_dice/shaders/screen_blur.gdshader))**: Background screen-space gaussian blur applied behind UI panels.
 

@@ -1,29 +1,87 @@
-[gd_scene load_steps=7 format=3 uid="uid://c53k10u2x82y"]
+[gd_scene load_steps=13 format=3 uid="uid://c53k10u2x82y"]
 
 [ext_resource type="Script" path="res://start_menu.gd" id="1_start"]
 [ext_resource type="Shader" path="res://shaders/screen_blur.gdshader" id="2_blur"]
+[ext_resource type="FontFile" path="res://fonts/PressStart2P-Regular.ttf" id="3_font"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
 shader = ExtResource("2_blur")
 shader_parameter/blur_amount = 3.5
 shader_parameter/mix_color = Color(0.02, 0.05, 0.03, 0.5)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.02, 0.08, 0.04, 0.9)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.2, 1, 0.4, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0.4, 0.1, 0.6)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_normal"]
+bg_color = Color(0.04, 0.16, 0.08, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 1, 0.4, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.3, 0.1, 0.5)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.08, 0.28, 0.14, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.4, 1, 0.6, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.2, 1, 0.4, 0.6)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pressed"]
+bg_color = Color(0.02, 0.1, 0.05, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.8, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
 [sub_resource type="LabelSettings" id="LabelSettings_title"]
-font_size = 80
+font = ExtResource("3_font")
+font_size = 64
 font_color = Color(0.2, 1, 0.4, 1)
-shadow_size = 8
-shadow_color = Color(0, 0.4, 0.1, 0.8)
+shadow_size = 12
+shadow_color = Color(0, 0.4, 0.1, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_config"]
-font_size = 38
+font = ExtResource("3_font")
+font_size = 28
 font_color = Color(0.3, 1, 0.5, 1)
-shadow_size = 4
+shadow_size = 6
 shadow_color = Color(0, 0.4, 0.1, 0.8)
 
 [sub_resource type="LabelSettings" id="LabelSettings_blink"]
-font_size = 36
-font_color = Color(1, 0.8, 0.2, 1)
-shadow_size = 4
+font = ExtResource("3_font")
+font_size = 24
+font_color = Color(1, 0.85, 0.2, 1)
+shadow_size = 6
 shadow_color = Color(0.5, 0.3, 0, 0.8)
 
 [node name="StartMenu" type="CanvasLayer"]
@@ -48,277 +106,347 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MenuContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="MenuContainer"]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -380.0
-offset_top = -360.0
-offset_right = 380.0
-offset_bottom = 360.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 16
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MenuContainer/CenterContainer"]
+custom_minimum_size = Vector2(880, 1400)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Margin" type="MarginContainer" parent="MenuContainer/CenterContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 28
 alignment = 1
 
-[node name="Title" type="Label" parent="MenuContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer"]
 layout_mode = 2
 text = "NO DICE"
 label_settings = SubResource("LabelSettings_title")
 horizontal_alignment = 1
 
-[node name="ConfigContainer" type="VBoxContainer" parent="MenuContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="RowD4" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="ConfigContainer" type="VBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="D4Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
-custom_minimum_size = Vector2(90, 0)
+[node name="RowD4" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="D4Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d4"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD4"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD4"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="RowD6" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD6" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D6Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D6Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d6"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "1"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD6"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD6"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="RowD8" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD8" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D8Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D8Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d8"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD8"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD8"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="RowD10" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD10" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D10Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D10Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d10"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD10"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD10"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="D10ModeRow" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="D10ModeRow" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 20
 alignment = 1
 
-[node name="D10ModeLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/D10ModeRow"]
-custom_minimum_size = Vector2(170, 0)
+[node name="D10ModeLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/D10ModeRow"]
+custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 text = "d10 mode"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="D10ModeButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/D10ModeRow"]
-custom_minimum_size = Vector2(180, 56)
+[node name="D10ModeButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/D10ModeRow"]
+custom_minimum_size = Vector2(280, 90)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 28
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "Low 0"
 
-[node name="RowD12" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD12" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D12Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D12Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d12"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD12"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD12"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="RowD20" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD20" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D20Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD20"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D20Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD20"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d20"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD20"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD20"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD20"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD20"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD20"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD20"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="RowD100" type="HBoxContainer" parent="MenuContainer/VBoxContainer/ConfigContainer"]
+[node name="RowD100" type="HBoxContainer" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 24
 alignment = 1
 
-[node name="D100Label" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD100"]
-custom_minimum_size = Vector2(90, 0)
+[node name="D100Label" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD100"]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 text = "d100"
 label_settings = SubResource("LabelSettings_config")
 
-[node name="MinusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD100"]
-custom_minimum_size = Vector2(56, 56)
+[node name="MinusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD100"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "-"
 
-[node name="CountLabel" type="Label" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD100"]
-custom_minimum_size = Vector2(56, 0)
+[node name="CountLabel" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD100"]
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_config")
 horizontal_alignment = 1
 
-[node name="PlusButton" type="Button" parent="MenuContainer/VBoxContainer/ConfigContainer/RowD100"]
-custom_minimum_size = Vector2(56, 56)
+[node name="PlusButton" type="Button" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer/ConfigContainer/RowD100"]
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 32
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 36
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_pressed")
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
 text = "+"
 
-[node name="BlinkPrompt" type="Label" parent="MenuContainer/VBoxContainer"]
+[node name="BlinkPrompt" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer"]
 layout_mode = 2
-text = "PRESS SPACE OR TAP TO ROLL"
+text = "TAP TO ROLL"
 label_settings = SubResource("LabelSettings_blink")
 horizontal_alignment = 1
