@@ -447,6 +447,7 @@ text = "+"
 
 [node name="BlinkPrompt" type="Label" parent="MenuContainer/CenterContainer/PanelContainer/Margin/VBoxContainer"]
 layout_mode = 2
+mouse_filter = 0
 text = "TAP TO ROLL"
 label_settings = SubResource("LabelSettings_blink")
 horizontal_alignment = 1

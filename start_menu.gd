@@ -178,13 +178,17 @@ func _input(event: InputEvent) -> void:
 			if btn and is_instance_valid(btn) and btn.visible and btn.get_global_rect().has_point(press_pos):
 				return # Keep menu open while adjusting configuration
 
+		var blink = find_child("BlinkPrompt", true, false) as Control
+		var is_on_blink: bool = false
+		if blink and is_instance_valid(blink):
+			# Expand touch rect by 40px padding for easy, forgiving tapping on "TAP TO ROLL"
+			var blink_rect = blink.get_global_rect().grow(40.0)
+			is_on_blink = blink_rect.has_point(press_pos)
+
 		var panel = find_child("PanelContainer", true, false) as Control
 		if panel and is_instance_valid(panel):
 			var panel_rect = panel.get_global_rect()
 			var is_outside = not panel_rect.has_point(press_pos)
-
-			var blink = find_child("BlinkPrompt", true, false) as Control
-			var is_on_blink = blink and is_instance_valid(blink) and blink.get_global_rect().has_point(press_pos)
 
 			if is_outside or is_on_blink:
 				dismiss_menu()

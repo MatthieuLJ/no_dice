@@ -100,9 +100,21 @@ func show_result(active_dice: Array[RigidBody3D]) -> void:
 				prob_ge += float(pmf[s_key])
 
 		var pct_ge: float = prob_ge * 100.0
+		var prob_str: String = ""
+
+		if prob_ge >= 1.0 - 0.000001:
+			prob_str = "100.0%"
+		elif prob_ge > 0.999:
+			prob_str = "> 99.9%"
+		elif prob_ge <= 0.000001:
+			prob_str = "0.0%"
+		elif prob_ge < 0.001:
+			prob_str = "< 0.1%"
+		else:
+			prob_str = "%.1f%%" % pct_ge
 
 		if stats_label:
-			stats_label.text = "P(Sum ≥ %d): %.1f%%" % [total_sum, pct_ge]
+			stats_label.text = "P(Sum ≥ %d): %s" % [total_sum, prob_str]
 
 	if histogram_draw:
 		histogram_draw.call("set_data", pmf, total_sum, is_broken)
@@ -127,6 +139,15 @@ func _on_main_menu_pressed() -> void:
 	main_menu_requested.emit()
 
 func _get_die_face_outcomes(die: RigidBody3D) -> Array[int]:
+	if die.has_method("_get_faces"):
+		var faces_info: Array = die.call("_get_faces") as Array
+		var vals: Array[int] = []
+		for f in faces_info:
+			if f is Dictionary and "value" in f:
+				vals.append(int(f["value"]))
+		if not vals.is_empty():
+			return vals
+
 	var script_path = die.get_script().resource_path if die.get_script() else ""
 
 	if "d4.gd" in script_path:
