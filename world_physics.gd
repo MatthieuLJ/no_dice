@@ -125,13 +125,14 @@ func _ready() -> void:
 		if result_screen.has_signal("main_menu_requested"):
 			result_screen.connect("main_menu_requested", _on_main_menu_requested)
 
-	# Instantiate Real-Time Physics Tuner HUD
-	var tuner_scene = load("res://physics_tuner.tscn") as PackedScene
-	if tuner_scene:
-		var tuner_inst = tuner_scene.instantiate()
-		add_child(tuner_inst)
-		if tuner_inst.has_method("setup"):
-			tuner_inst.call("setup", self)
+	# Instantiate Real-Time Physics Tuner HUD (if enabled in DiceConfig)
+	if DiceConfig.ENABLE_PHYSICS_TUNER:
+		var tuner_scene = load("res://physics_tuner.tscn") as PackedScene
+		if tuner_scene:
+			var tuner_inst = tuner_scene.instantiate()
+			add_child(tuner_inst)
+			if tuner_inst.has_method("setup"):
+				tuner_inst.call("setup", self)
 
 func apply_realtime_friction(val: float) -> void:
 	for d in dice:

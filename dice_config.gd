@@ -20,6 +20,9 @@ static var MASS_MULTIPLIER: float = 1.0
 static var INERTIA_MULTIPLIER: float = 1.0
 static var TABLE_SPIN_TORQUE: float = 0.05
 
+# Toggle real-time physics tuner HUD overlay (default: false)
+const ENABLE_PHYSICS_TUNER: bool = false
+
 # Toggle software position/velocity clamping boundary guards (default: false)
 const ENABLE_SOFTWARE_CLAMPING: bool = false
 

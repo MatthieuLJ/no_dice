@@ -1,0 +1,255 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8physics_tuner"]
+
+[ext_resource type="Script" path="res://physics_tuner.gd" id="1_tuner"]
+[ext_resource type="FontFile" uid="uid://cqkwx23g0n42c" path="res://fonts/PressStart2P-Regular.ttf" id="2_font"]
+
+[node name="PhysicsTuner" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_tuner")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ToggleBtn" type="Button" parent="Control"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 320.0
+offset_bottom = 110.0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "TUNER"
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+visible = false
+layout_mode = 0
+offset_left = 20.0
+offset_top = 125.0
+offset_right = 960.0
+offset_bottom = 900.0
+mouse_filter = 0
+
+[node name="VBox" type="VBoxContainer" parent="Control/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "⚙️ REAL-TIME PHYSICS TUNER"
+horizontal_alignment = 1
+
+[node name="FrictionRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/FrictionRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "FRICTION:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/FrictionRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.2
+max_value = 1.8
+step = 0.05
+value = 0.7
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/FrictionRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "0.70"
+horizontal_alignment = 2
+
+[node name="LinearDampRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/LinearDampRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "LIN DAMP:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/LinearDampRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.05
+max_value = 2.0
+step = 0.05
+value = 0.45
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/LinearDampRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "0.45"
+horizontal_alignment = 2
+
+[node name="AngularDampRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/AngularDampRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "ANG DAMP:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/AngularDampRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.02
+max_value = 1.0
+step = 0.02
+value = 0.25
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/AngularDampRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "0.25"
+horizontal_alignment = 2
+
+[node name="LateralGainRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/LateralGainRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "LAT GAIN:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/LateralGainRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 8.0
+step = 0.2
+value = 4.5
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/LateralGainRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "4.5"
+horizontal_alignment = 2
+
+[node name="MassRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/MassRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "MASS MULT:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/MassRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.5
+max_value = 3.0
+step = 0.1
+value = 1.0
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/MassRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "1.0x"
+horizontal_alignment = 2
+
+[node name="InertiaRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/InertiaRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "INERTIA MULT:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/InertiaRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.1
+max_value = 5.0
+step = 0.1
+value = 1.0
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/InertiaRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "1.0x"
+horizontal_alignment = 2
+
+[node name="SpinRow" type="HBoxContainer" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/PanelContainer/VBox/SpinRow"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "SPIN TORQUE:"
+
+[node name="Slider" type="HSlider" parent="Control/PanelContainer/VBox/SpinRow"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.0
+max_value = 0.2
+step = 0.01
+value = 0.05
+
+[node name="Value" type="Label" parent="Control/PanelContainer/VBox/SpinRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+text = "0.05"
+horizontal_alignment = 2
+
+[node name="HSeparator" type="HSeparator" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+
+[node name="EvalLabel" type="Label" parent="Control/PanelContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 20
+text = "STATE: RESTING"
+horizontal_alignment = 1
