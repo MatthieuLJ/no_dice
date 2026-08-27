@@ -351,11 +351,22 @@ func _physics_process(delta: float) -> void:
 		else:
 			filtered_accel = filtered_accel.lerp(raw_accel, minf(1.0, 60.0 * delta))
 
-		# Unified Non-Inertial Reference Frame 3D Acceleration Vector (decouple downward gravity from lateral gain)
+		# Smooth gain curve: Apply 1.0x baseline gravity for gentle rest tilt (< 15°),
+		# scaling up smoothly to LATERAL_ACCEL_GAIN for active tilts/shakes
+		var gain_x = lerpf(1.0, DiceConfig.LATERAL_ACCEL_GAIN, clampf(abs(filtered_accel.x) / 3.0, 0.0, 1.0))
+		var gain_z = lerpf(1.0, DiceConfig.LATERAL_ACCEL_GAIN, clampf(abs(filtered_accel.y) / 3.0, 0.0, 1.0))
+
+		# Dynamic 3D Vertical Inertial Gravity (combines static Earth gravity with 3D up-and-down hand thrust)
+		var vert_room_accel = filtered_accel.z
+		var total_accel_mag = filtered_accel.length()
+		if total_accel_mag > 10.5:
+			# Upward inertial force reverses vertical room gravity, launching dice off the floor!
+			vert_room_accel += (total_accel_mag - 9.81) * 1.5
+
 		active_world_accel = Vector3(
-			filtered_accel.x * DiceConfig.LATERAL_ACCEL_GAIN,
-			filtered_accel.z * 1.0,
-			-filtered_accel.y * DiceConfig.LATERAL_ACCEL_GAIN
+			filtered_accel.x * gain_x,
+			vert_room_accel,
+			-filtered_accel.y * gain_z
 		)
 
 		var accel_mag = active_world_accel.length()
