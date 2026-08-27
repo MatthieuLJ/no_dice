@@ -4,7 +4,7 @@ extends RigidBody3D
 @export var ground: StaticBody3D
 
 func _ready() -> void:
-	DiceConfig.apply_to_die(self)
+	DiceConfig.apply_to_die(self, scale.x)
 	custom_integrator = false
 
 	if not ground:
@@ -17,8 +17,29 @@ func _ready() -> void:
 func _build_mesh_and_collider() -> void:
 	pass
 
+func _setup_convex_collider(vertices: Array[Vector3]) -> void:
+	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if col_shape:
+		var convex = ConvexPolygonShape3D.new()
+		convex.points = PackedVector3Array(vertices)
+		col_shape.shape = convex
+
+func _create_die_material(texture_path: String, fallback_color: Color = Color.WHITE) -> StandardMaterial3D:
+	var mat = StandardMaterial3D.new()
+	var tex = load(texture_path)
+	if tex:
+		mat.albedo_texture = tex
+		mat.albedo_color = Color.WHITE
+	else:
+		mat.albedo_color = fallback_color
+	mat.roughness = 0.4
+	mat.metallic = 0.0
+	mat.metallic_specular = 0.5
+	return mat
+
 func _get_die_half_size() -> float:
-	return 0.085
+	var s: float = float(get_meta("die_scale", 1.0))
+	return 0.085 * s
 
 func _get_faces() -> Array:
 	return []

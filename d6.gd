@@ -1,8 +1,5 @@
 extends BaseDie
 
-func _get_die_half_size() -> float:
-	return 0.05
-
 func _get_faces() -> Array:
 	return [
 		{ "normal": Vector3(0, 1, 0), "value": 2 },

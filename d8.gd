@@ -38,32 +38,17 @@ static func _static_init() -> void:
 	for v in raw_verts:
 		VERTICES.append(rot_basis * v)
 
-func _get_die_half_size() -> float:
-	return R
-
 func _build_mesh_and_collider() -> void:
-	# 1. Collider
-	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if col_shape:
-		var convex = ConvexPolygonShape3D.new()
-		convex.points = PackedVector3Array(VERTICES)
-		col_shape.shape = convex
+	_setup_convex_collider(VERTICES)
 
-	# 2. Mesh & UV Mapping
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
 		var st = SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-		var mat = StandardMaterial3D.new()
-		var tex = load("res://textures/d8_texture.png")
-		if tex:
-			mat.albedo_texture = tex
-			mat.albedo_color = Color.WHITE
-		else:
-			mat.albedo_color = Color(0.1, 0.3, 0.8)
-		mat.roughness = 0.4
+		var mat = _create_die_material("res://textures/d8_texture.png", Color(0.1, 0.3, 0.8))
 		st.set_material(mat)
+		mesh_inst.material_override = mat
 
 		# 8 Face UVs in 4x2 grid atlas
 		for f_idx in range(FACE_SPECS.size()):

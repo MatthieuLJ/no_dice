@@ -37,33 +37,15 @@ func _ready() -> void:
 	super._ready()
 	can_sleep = true
 
-func _get_die_half_size() -> float:
-	return R
-
 func _build_mesh_and_collider() -> void:
-	# 1. Collider
-	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if col_shape:
-		var convex = ConvexPolygonShape3D.new()
-		convex.points = PackedVector3Array(VERTICES)
-		col_shape.shape = convex
+	_setup_convex_collider(VERTICES)
 
-	# 2. Mesh & UV Mapping
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
 		var st = SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-		var mat = StandardMaterial3D.new()
-		var tex = load("res://textures/d20_texture.png")
-		if tex:
-			mat.albedo_texture = tex
-			mat.albedo_color = Color.WHITE
-		else:
-			mat.albedo_color = Color(0.2, 0.3, 0.8)
-		mat.roughness = 0.4
-		mat.metallic = 0.0
-		mat.metallic_specular = 0.5
+		var mat = _create_die_material("res://textures/d20_texture.png", Color(0.2, 0.3, 0.8))
 		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 		st.set_material(mat)
 		mesh_inst.material_override = mat

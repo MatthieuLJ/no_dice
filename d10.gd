@@ -77,34 +77,16 @@ func set_d10_mode(param: Variant) -> void:
 				mesh_inst.material_override = mat
 			(mesh_inst.material_override as StandardMaterial3D).albedo_texture = tex
 
-func _get_die_half_size() -> float:
-	return R
-
 func _build_mesh_and_collider() -> void:
-	# 1. Collider
-	var col_shape = get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if col_shape:
-		var convex = ConvexPolygonShape3D.new()
-		convex.points = PackedVector3Array(VERTICES)
-		col_shape.shape = convex
+	_setup_convex_collider(VERTICES)
 
-	# 2. Mesh & UV Mapping
 	var mesh_inst = get_node_or_null("MeshInstance3D") as MeshInstance3D
 	if mesh_inst:
 		var st = SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-		var mat = StandardMaterial3D.new()
 		var tex_path = "res://textures/d10_high_texture.png" if is_high_10 else "res://textures/d10_texture.png"
-		var tex = load(tex_path)
-		if tex:
-			mat.albedo_texture = tex
-			mat.albedo_color = Color.WHITE
-		else:
-			mat.albedo_color = Color(0.1, 0.7, 0.3)
-		mat.roughness = 0.4
-		mat.metallic = 0.0
-		mat.metallic_specular = 0.5
+		var mat = _create_die_material(tex_path, Color(0.1, 0.7, 0.3))
 		st.set_material(mat)
 		mesh_inst.material_override = mat
 
@@ -159,17 +141,6 @@ func _build_mesh_and_collider() -> void:
 				st.set_normal(flat_normal); st.set_uv(uv_bot); st.add_vertex(vC)
 
 		mesh_inst.mesh = st.commit()
-
-func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	super._integrate_forces(state)
-	var local_pos: Vector3 = ground.to_local(state.transform.origin) if ground else Vector3.ZERO
-
-	# Unstable apex tip correction: ONLY if D10 is stationary but caught balancing high on an apex (local_pos.y > 0.075m)
-	if local_pos.y > 0.075 and state.linear_velocity.length() < 0.02 and state.angular_velocity.length() < 0.02:
-		var nudge_dir = Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0)).normalized()
-		if nudge_dir.is_zero_approx():
-			nudge_dir = Vector3.RIGHT
-		state.apply_torque_impulse(nudge_dir * 0.003)
 
 func _get_faces() -> Array:
 	var face_values: Array[int] = [0, 1, 2, 3, 4, 6, 5, 9, 8, 7]
