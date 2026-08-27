@@ -24,7 +24,7 @@ ambient_light_energy = 1.2
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_gxo0y"]
 friction = 0.5
-absorbent = true
+bounce = 0.35
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qmayl"]
 albedo_color = Color(0.12207278, 0.33307928, 0.11401791, 1)

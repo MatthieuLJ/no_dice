@@ -31,6 +31,8 @@ var drag_start_pos: Vector2 = Vector2.ZERO
 var is_drag_active: bool = false
 var drag_threshold: float = 8.0
 var filtered_accel: Vector3 = Vector3.ZERO
+var _telemetry_timer: float = 0.0
+var _telemetry_file: FileAccess = null
 
 @onready var result_screen: CanvasLayer = get_node_or_null("ResultScreen")
 
@@ -96,6 +98,14 @@ func _slide_die_to_position(die: RigidBody3D, target_3d: Vector3) -> void:
 	die.angular_velocity = Vector3.ZERO
 
 func _ready() -> void:
+	Engine.time_scale = 1.25
+
+	if DiceConfig.ENABLE_TELEMETRY_LOGGING:
+		_telemetry_file = FileAccess.open("user://sensor_telemetry.log", FileAccess.WRITE)
+		if _telemetry_file:
+			_telemetry_file.store_line("# No Dice Hardware Sensor & 3D Dice Trajectory Log")
+			_telemetry_file.store_line("# Session Started: %d" % Time.get_unix_time_from_system())
+
 	if d6: dice.append(d6)
 	if d4: dice.append(d4)
 	if d8: dice.append(d8)
@@ -114,6 +124,53 @@ func _ready() -> void:
 			result_screen.connect("lock_flat_and_reroll_requested", _on_lock_flat_and_reroll_requested)
 		if result_screen.has_signal("main_menu_requested"):
 			result_screen.connect("main_menu_requested", _on_main_menu_requested)
+
+	# Instantiate Real-Time Physics Tuner HUD
+	var tuner_scene = load("res://physics_tuner.tscn") as PackedScene
+	if tuner_scene:
+		var tuner_inst = tuner_scene.instantiate()
+		add_child(tuner_inst)
+		if tuner_inst.has_method("setup"):
+			tuner_inst.call("setup", self)
+
+func apply_realtime_friction(val: float) -> void:
+	for d in dice:
+		if is_instance_valid(d) and d.physics_material_override:
+			d.physics_material_override.friction = val
+	var ground = get_node_or_null("Enclosure/Ground") as StaticBody3D
+	if ground and ground.physics_material_override:
+		ground.physics_material_override.friction = val
+
+func apply_realtime_linear_damp(val: float) -> void:
+	for d in dice:
+		if is_instance_valid(d):
+			d.linear_damp = val
+
+func apply_realtime_angular_damp(val: float) -> void:
+	for d in dice:
+		if is_instance_valid(d):
+			d.angular_damp = val
+
+func apply_realtime_mass_multiplier(val: float) -> void:
+	DiceConfig.MASS_MULTIPLIER = val
+	for d in dice:
+		if is_instance_valid(d):
+			var scale_factor = float(d.get_meta("die_scale", 1.0))
+			var base_m = DiceConfig.get_mass_for_die(d)
+			var m = base_m * (1.0 + (scale_factor - 1.0) * 0.75) * val
+			d.mass = m
+			var in_val = m * 0.004 * DiceConfig.INERTIA_MULTIPLIER * scale_factor * scale_factor
+			d.inertia = Vector3(in_val, in_val, in_val)
+
+func apply_realtime_inertia_multiplier(val: float) -> void:
+	DiceConfig.INERTIA_MULTIPLIER = val
+	for d in dice:
+		if is_instance_valid(d):
+			var scale_factor = float(d.get_meta("die_scale", 1.0))
+			var base_m = DiceConfig.get_mass_for_die(d)
+			var m = base_m * (1.0 + (scale_factor - 1.0) * 0.75) * DiceConfig.MASS_MULTIPLIER
+			var in_val = m * 0.004 * val * scale_factor * scale_factor
+			d.inertia = Vector3(in_val, in_val, in_val)
 
 func _on_start_menu_dismissed(param: Variant) -> void:
 	if result_screen and result_screen.has_method("hide_result"):
@@ -151,6 +208,16 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 	var d10_mode_str: String = counts.get("d10_mode", "low_0")
 	var d100_count: int = int(counts.get("d100", 0))
 
+	# Compute total dice count N to determine scale factor
+	var total_count: int = 0
+	for type_key in ["d4", "d6", "d8", "d10", "d12", "d20"]:
+		total_count += int(counts.get(type_key, 0))
+	total_count += d100_count * 2
+	if total_count <= 0:
+		total_count = 1
+
+	var scale_factor: float = DiceConfig.get_scale_for_count(total_count)
+
 	# Hide template base dice by default
 	for base in [d4, d6, d8, d10, d12, d20]:
 		if is_instance_valid(base):
@@ -168,39 +235,38 @@ func set_multi_dice_counts(counts: Dictionary) -> void:
 
 		for i in range(req_count):
 			var mode_param: String = d10_mode_str if type_key == "d10" else ""
-			_spawn_die_instance(base_die, mode_param, spawn_idx)
+			_spawn_die_instance(base_die, mode_param, spawn_idx, scale_factor)
 			spawn_idx += 1
 
 	# Spawn D100 dice (pair of D10 Tens + D10 Low 0)
 	if d100_count > 0 and is_instance_valid(d10):
 		for i in range(d100_count):
 			# 1. D10 Tens die (00..90)
-			_spawn_die_instance(d10, "tens", spawn_idx)
+			_spawn_die_instance(d10, "tens", spawn_idx, scale_factor)
 			spawn_idx += 1
 
 			# 2. D10 Units die (0..9)
-			_spawn_die_instance(d10, "low_0", spawn_idx)
+			_spawn_die_instance(d10, "low_0", spawn_idx, scale_factor)
 			spawn_idx += 1
 
-func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: int) -> RigidBody3D:
-	var die_to_use: RigidBody3D = base_die
-	if base_die.get_parent() != null and base_die.visible:
-		die_to_use = base_die.duplicate() as RigidBody3D
-		add_child(die_to_use)
+func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: int, scale_factor: float = 1.0) -> RigidBody3D:
+	var die_to_use: RigidBody3D = base_die.duplicate() as RigidBody3D
+	add_child(die_to_use)
 
 	die_to_use.visible = true
 	die_to_use.process_mode = PROCESS_MODE_INHERIT
 	die_to_use.freeze = false
-	DiceConfig.apply_to_die(die_to_use)
+	DiceConfig.apply_to_die(die_to_use, scale_factor)
 	die_to_use.linear_velocity = Vector3.ZERO
 	die_to_use.angular_velocity = Vector3.ZERO
 
 	if not mode_param.is_empty() and die_to_use.has_method("set_d10_mode"):
 		die_to_use.call("set_d10_mode", mode_param)
 
-	var col_x = float(spawn_idx % 5) * 0.12 - 0.24
-	var row_z = floorf(float(spawn_idx) / 5.0) * 0.12 - 0.24
-	var spawn_y = 0.15 + (randf() * 0.15)
+	var spacing: float = 0.12 * minf(scale_factor, 2.5)
+	var col_x = float(spawn_idx % 5) * spacing - (spacing * 2.0)
+	var row_z = floorf(float(spawn_idx) / 5.0) * spacing - (spacing * 2.0)
+	var spawn_y = (0.15 * scale_factor) + (randf() * 0.15 * scale_factor)
 
 	die_to_use.position = Vector3(col_x + randf_range(-0.02, 0.02), spawn_y, row_z + randf_range(-0.02, 0.02))
 	die_to_use.rotation = Vector3(randf_range(0, TAU), randf_range(0, TAU), randf_range(0, TAU))
@@ -209,6 +275,7 @@ func _spawn_die_instance(base_die: RigidBody3D, mode_param: String, spawn_idx: i
 
 func set_dice_count(count: int) -> void:
 	count = max(1, count)
+	var scale_factor: float = DiceConfig.get_scale_for_count(count)
 
 	# Remove extra dice
 	for i in range(dice.size() - 1, 0, -1):
@@ -216,8 +283,10 @@ func set_dice_count(count: int) -> void:
 			dice[i].queue_free()
 	dice.resize(1)
 
-	# Reset original die position
+	# Reset original die position and apply scale
 	_reset_die()
+	if is_instance_valid(dice[0]):
+		DiceConfig.apply_to_die(dice[0], scale_factor)
 
 	# Spawn additional dice
 	var base_die: RigidBody3D = d6 if d6 else (d10 if d10 else (d8 if d8 else d4))
@@ -227,7 +296,7 @@ func set_dice_count(count: int) -> void:
 			add_child(new_die)
 			new_die.position = Vector3(
 				randf_range(-0.3, 0.3),
-				0.1 + (i * 0.12),
+				(0.1 + (i * 0.12)) * scale_factor,
 				randf_range(-0.3, 0.3)
 			)
 			new_die.rotation = Vector3(
@@ -236,6 +305,7 @@ func set_dice_count(count: int) -> void:
 				randf_range(0, TAU)
 			)
 			new_die.freeze = false
+			DiceConfig.apply_to_die(new_die, scale_factor)
 			dice.append(new_die)
 
 func _lock_world(active_dice: Array[RigidBody3D]) -> void:
@@ -267,32 +337,34 @@ func _physics_process(delta: float) -> void:
 	if shake_cooldown > 0.0:
 		shake_cooldown -= delta
 
-	# 1. Check for Mobile Sensors
+	# 1. Check for Mobile Sensors (Accelerometer & Gyroscope)
 	var raw_accel = Input.get_accelerometer()
+	var gyro = Input.get_gyroscope() # rad/s angular velocity
 	var active_world_accel: Vector3 = Vector3.ZERO
+	var dynamic_shake_accel: Vector3 = Vector3.ZERO
 
 	if not raw_accel.is_zero_approx():
-		# Low-pass filter (25 Hz) to smooth high-frequency hardware sensor noise/jitter
+		# Fast 60 Hz sensor filter for 0ms perceptual tilt latency
 		if filtered_accel.is_zero_approx():
 			filtered_accel = raw_accel
 		else:
-			filtered_accel = filtered_accel.lerp(raw_accel, minf(1.0, 25.0 * delta))
+			filtered_accel = filtered_accel.lerp(raw_accel, minf(1.0, 60.0 * delta))
 
+		# Unified Non-Inertial Reference Frame 3D Acceleration Vector (decouple downward gravity from lateral gain)
 		active_world_accel = Vector3(
-			filtered_accel.x * 1.5,
-			filtered_accel.z,
-			-filtered_accel.y * 1.5
+			filtered_accel.x * DiceConfig.LATERAL_ACCEL_GAIN,
+			filtered_accel.z * 1.0,
+			-filtered_accel.y * DiceConfig.LATERAL_ACCEL_GAIN
 		)
 
-		if active_world_accel.length() > 0.001:
+		var accel_mag = active_world_accel.length()
+		if accel_mag > 0.001:
 			gravity_area.gravity_direction = active_world_accel.normalized()
-			gravity_area.gravity = active_world_accel.length()
+			# Dynamic Gravity Magnitude (varies continuously from 4.0 m/s² during lift to 45.0 m/s² during heavy push/catch)
+			gravity_area.gravity = clampf(accel_mag, 4.0, 45.0)
 			gravity_debugger.draw_gravity_vector(active_world_accel)
 
-		# Detect active physical phone shaking (shake gesture)
-		if absf(active_world_accel.length() - 9.8) > 6.0 and shake_cooldown <= 0.0:
-			shake_cooldown = 1.0
-			_apply_strong_random_impulse()
+		dynamic_shake_accel = active_world_accel
 
 	else:
 		# --- DESKTOP TESTING MODE (Arrow Keys) ---
@@ -315,16 +387,16 @@ func _physics_process(delta: float) -> void:
 			gravity_area.gravity = 9.8
 			gravity_debugger.draw_gravity_vector(simulated_gravity)
 
-	# Determine if device is currently tilted away from flat or flipped upside down
+	# Determine if device is currently tilted away from flat (using raw filtered sensor tilt, not gain-scaled force)
 	var is_device_tilted: bool = false
 	if not raw_accel.is_zero_approx():
-		var horiz_tilt = Vector2(active_world_accel.x, active_world_accel.z).length()
-		var is_upside_down = active_world_accel.y > 1.0
-		is_device_tilted = (horiz_tilt > 0.8) or is_upside_down
+		var horiz_raw_tilt = Vector2(filtered_accel.x, filtered_accel.y).length()
+		var is_upside_down = filtered_accel.z > -2.0 # Tilted steeply past 78° or flipped upside down
+		is_device_tilted = (horiz_raw_tilt > 1.8) or is_upside_down
 	else:
 		var desktop_tilt = Vector2(simulated_gravity.x, simulated_gravity.z).length()
 		var desktop_upside_down = simulated_gravity.y > 1.0
-		is_device_tilted = (desktop_tilt > 0.8) or desktop_upside_down
+		is_device_tilted = (desktop_tilt > 1.8) or desktop_upside_down
 
 	_logcat_timer += delta
 	if _logcat_timer >= 1.0:
@@ -335,10 +407,25 @@ func _physics_process(delta: float) -> void:
 			str(is_device_tilted)
 		])
 
-	# 2. Contain dice, handle dynamic tilt-sleeping & unfreezing
+	if DiceConfig.ENABLE_TELEMETRY_LOGGING:
+		_telemetry_timer += delta
+		if _telemetry_timer >= 0.1: # 10 Hz telemetry sampling
+			_telemetry_timer = 0.0
+			_log_telemetry_sample(raw_accel, gyro, active_world_accel, dynamic_shake_accel)
+
+	# Gesture Signature Detection: Table Spin vs Body Centripetal Spin
+	var horiz_accel_mag = Vector2(filtered_accel.x, filtered_accel.z).length()
+	var spin_speed = abs(gyro.y)
+	var is_table_spin = (spin_speed > 1.0 and horiz_accel_mag < 2.0)
+
+	# 2. Contain dice & handle tilt-sleeping
 	for d in dice:
 		if is_instance_valid(d) and d.visible:
 			var is_user_locked = bool(d.get_meta("is_user_locked", false))
+			if not is_user_locked and is_table_spin:
+				# Apply floor spin torque for Table Spin
+				d.apply_torque(Vector3(0, gyro.y * d.mass * DiceConfig.TABLE_SPIN_TORQUE, 0))
+
 			if is_device_tilted and not is_user_locked:
 				d.freeze = false
 				d.can_sleep = false
@@ -377,7 +464,7 @@ func _check_at_rest_transition(delta: float, is_device_tilted: bool) -> void:
 			if not d.sleeping and (speed > 0.03 or rot_speed > 0.03):
 				all_at_rest = false
 				# Only register true rolling motion if speed exceeds physical threshold
-				if (speed > 0.15 or rot_speed > 0.25) and not is_drag_active and dragging_die == null:
+				if (speed > 0.05 or rot_speed > 0.08) and not is_drag_active and dragging_die == null:
 					has_left_rest = true
 
 	if active_dice.is_empty():
@@ -629,3 +716,30 @@ func _reset_die() -> void:
 			d.global_position = Vector3(randf_range(-0.2, 0.2), 0.5 + (i * 0.12), randf_range(-0.2, 0.2))
 			d.linear_velocity = Vector3.ZERO
 			d.angular_velocity = Vector3.ZERO
+
+func _log_telemetry_sample(raw_acc: Vector3, gyro_vec: Vector3, active_acc: Vector3, dyn_shake: Vector3) -> void:
+	var dice_telemetry: Array = []
+	for d in dice:
+		if is_instance_valid(d) and d.visible:
+			dice_telemetry.append({
+				"name": d.name,
+				"pos": [snappedf(d.position.x, 0.01), snappedf(d.position.y, 0.01), snappedf(d.position.z, 0.01)],
+				"vel": [snappedf(d.linear_velocity.x, 0.01), snappedf(d.linear_velocity.y, 0.01), snappedf(d.linear_velocity.z, 0.01)],
+				"sleeping": d.sleeping
+			})
+
+	var entry: Dictionary = {
+		"t": snappedf(Time.get_ticks_msec() / 1000.0, 0.01),
+		"raw_acc": [snappedf(raw_acc.x, 0.01), snappedf(raw_acc.y, 0.01), snappedf(raw_acc.z, 0.01)],
+		"filt_acc": [snappedf(filtered_accel.x, 0.01), snappedf(filtered_accel.y, 0.01), snappedf(filtered_accel.z, 0.01)],
+		"active_acc": [snappedf(active_acc.x, 0.01), snappedf(active_acc.y, 0.01), snappedf(active_acc.z, 0.01)],
+		"gyro": [snappedf(gyro_vec.x, 0.01), snappedf(gyro_vec.y, 0.01), snappedf(gyro_vec.z, 0.01)],
+		"shake": [snappedf(dyn_shake.x, 0.01), snappedf(dyn_shake.y, 0.01), snappedf(dyn_shake.z, 0.01)],
+		"dice": dice_telemetry
+	}
+
+	var json_str: String = JSON.stringify(entry)
+	print("[NODICE_TELEMETRY] " + json_str)
+	if _telemetry_file:
+		_telemetry_file.store_line(json_str)
+		_telemetry_file.flush()

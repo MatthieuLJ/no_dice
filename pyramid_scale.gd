@@ -20,10 +20,10 @@ func _ready() -> void:
 	if has_node("Roof"):
 		get_node("Roof").queue_free()
 
-	# Slick, smooth physics material for arena walls (friction 0.05, subtle bounce 0.15)
+	# Tuned felt physics material for arena floor & walls (friction matches DiceConfig.FRICTION)
 	var wall_phys_mat = PhysicsMaterial.new()
-	wall_phys_mat.friction = 0.05
-	wall_phys_mat.bounce = 0.15
+	wall_phys_mat.friction = DiceConfig.FRICTION
+	wall_phys_mat.bounce = 0.35
 	physics_material_override = wall_phys_mat
 
 	get_viewport().size_changed.connect(_update_scale)
