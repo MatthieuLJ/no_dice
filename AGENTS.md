@@ -108,3 +108,9 @@ All polyhedral dice inherit from `BaseDie`:
 1. **Maintain Static Typing**: Always use explicit types for GDScript variables, parameters, and return types (`var speed: float = 200.0`, `func get_upward_value() -> Dictionary:`).
 2. **Preserve `BaseDie` Inheritance**: Keep shared physics, clamping, boundary recovery, and ground resolution in `base_die.gd`. Derived die scripts should only specify geometry, texture building, and face tables.
 3. **Verify Winding & Normals**: When creating polyhedral meshes, ensure vertices are constructed in Counter-Clockwise (CCW) 3D outward winding order so backface culling (`cull_back` / `cull_front`) functions properly.
+
+---
+
+## Tooling
+1. To sign a release, I need to run  `"C:\Program Files\Android\Android Studio\jbr\bin\jarsigner.exe" -keystore "C:\Users\djens\Android_keystore"
+  "C:\Users\djens\Documents\no_dice\No_Dice.aab" YOUR_KEY_ALIAS`
